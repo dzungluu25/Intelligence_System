@@ -13,6 +13,7 @@
     "@capacitor/android": "^8.5.0",
     "@capacitor/browser": "^8.0.4",
     "@capacitor/core": "^8.5.0",
+    "@capacitor/ios": "^8.5.0",
     "axios": "^1.19.0",
     "framer-motion": "^13.1.0",
     "lucide-react": "^1.32.0",

@@ -2,5 +2,5 @@ pandas
 numpy
 scikit-learn
 xgboost
-shap==0.52.0
+shap
 joblib

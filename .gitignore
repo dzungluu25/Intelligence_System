@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+venv/
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+
+# Trained model artifacts (large, regenerable by re-running the notebook)
+*.pkl
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+
+# Env / secrets
+.env
+.env.*
+
+# Build output
+dist/
+build/
+
+# Runtime data
+app/backend/data/history.json

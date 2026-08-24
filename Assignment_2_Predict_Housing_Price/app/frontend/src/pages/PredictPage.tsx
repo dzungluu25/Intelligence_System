@@ -59,11 +59,11 @@ export function PredictPage() {
           </div>
         )}
 
-        {result && (
+        {result && lastInput && (
           <>
-            <PredictionResult result={result} />
+            <PredictionResult result={result} input={lastInput} />
             <ModelComparison result={result} />
-            {lastInput && <SimilarProperties district={lastInput.district} area={lastInput.area} />}
+            <SimilarProperties district={lastInput.district} area={lastInput.area} />
           </>
         )}
       </div>

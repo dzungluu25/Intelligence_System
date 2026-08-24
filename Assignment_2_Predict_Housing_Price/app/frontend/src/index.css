@@ -1,80 +1,92 @@
 @import "tailwindcss";
 
 @theme {
-  --color-accent-50: #fff7ed;
-  --color-accent-100: #ffedd5;
-  --color-accent-200: #fed7aa;
-  --color-accent-300: #fdba74;
-  --color-accent-400: #fb923c;
-  --color-accent-500: #f97316;
-  --color-accent-600: #ea580c;
-  --color-accent-700: #c2410c;
-  --color-accent-800: #9a3412;
-  --color-accent-900: #7c2d12;
+  --color-accent-50: #fdf6e3;
+  --color-accent-100: #faebc0;
+  --color-accent-200: #f3d685;
+  --color-accent-300: #e9bc4c;
+  --color-accent-400: #d4a129;
+  --color-accent-500: #b8860b;
+  --color-accent-600: #9c7009;
+  --color-accent-700: #7d5a08;
+  --color-accent-800: #634708;
+  --color-accent-900: #4f3a09;
 
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: "Be Vietnam Pro", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 :root {
-  --bg: #f7f6f4;
+  --bg: #ffffff;
   --bg-elevated: #ffffff;
-  --bg-subtle: #eeecE8;
-  --border: #e2e0da;
-  --border-strong: #cbc8c0;
-  --text: #1c1a17;
-  --text-muted: #6b6862;
-  --text-faint: #a19d94;
-  --accent: #ea580c;
-  --accent-soft: #fff0e4;
-  --positive: #15803d;
-  --positive-soft: #ecfdf3;
+  --bg-subtle: #f3f5f8;
+  --border: #e3e6ec;
+  --border-strong: #c7cdd8;
+  --text: #16233f;
+  --text-muted: #5b6472;
+  --text-faint: #97a0af;
+
+  /* Brand: deep navy — trust, structure, the "agency" color */
+  --brand: #16233f;
+  --brand-soft: #e8ecf4;
+
+  /* Accent: warm amber/gold — the "trust CTA" color */
+  --accent: #b8860b;
+  --accent-soft: #fcf3dc;
+
+  /* Positive: emerald — market growth / good signal */
+  --positive: #059669;
+  --positive-soft: #e7f7f1;
   --negative: #b42318;
   --negative-soft: #fef3f2;
-  --shadow-sm: 0 1px 2px rgba(28, 26, 23, 0.06);
-  --shadow-md: 0 4px 16px rgba(28, 26, 23, 0.08);
-  --shadow-lg: 0 12px 32px rgba(28, 26, 23, 0.12);
+  --shadow-sm: 0 1px 2px rgba(22, 35, 63, 0.06);
+  --shadow-md: 0 4px 16px rgba(22, 35, 63, 0.08);
+  --shadow-lg: 0 12px 32px rgba(22, 35, 63, 0.14);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #15130f;
-    --bg-elevated: #201d18;
-    --bg-subtle: #262219;
-    --border: #33302a;
-    --border-strong: #45413a;
-    --text: #f3f1ec;
-    --text-muted: #a8a49b;
-    --text-faint: #726d64;
-    --accent: #fb923c;
-    --accent-soft: #3a2515;
-    --positive: #4ade80;
+    --bg: #0e1420;
+    --bg-elevated: #171f30;
+    --bg-subtle: #1e2739;
+    --border: #2b3549;
+    --border-strong: #3d4a63;
+    --text: #eef1f6;
+    --text-muted: #9aa4b8;
+    --text-faint: #66708a;
+    --brand: #9fb3d9;
+    --brand-soft: #202c45;
+    --accent: #d4a129;
+    --accent-soft: #3a2717;
+    --positive: #10b981;
     --positive-soft: #14291c;
     --negative: #f87171;
     --negative-soft: #2e1716;
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
     --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
-    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.45);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
   }
 }
 
 :root[data-theme="dark"] {
-  --bg: #15130f;
-  --bg-elevated: #201d18;
-  --bg-subtle: #262219;
-  --border: #33302a;
-  --border-strong: #45413a;
-  --text: #f3f1ec;
-  --text-muted: #a8a49b;
-  --text-faint: #726d64;
-  --accent: #fb923c;
-  --accent-soft: #3a2515;
-  --positive: #4ade80;
+  --bg: #0e1420;
+  --bg-elevated: #171f30;
+  --bg-subtle: #1e2739;
+  --border: #2b3549;
+  --border-strong: #3d4a63;
+  --text: #eef1f6;
+  --text-muted: #9aa4b8;
+  --text-faint: #66708a;
+  --brand: #9fb3d9;
+  --brand-soft: #202c45;
+  --accent: #d4a129;
+  --accent-soft: #3a2717;
+  --positive: #10b981;
   --positive-soft: #14291c;
   --negative: #f87171;
   --negative-soft: #2e1716;
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
 }
 
 * {
@@ -93,6 +105,15 @@ body {
   color: var(--text);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+}
+
+/* Subtle architectural blueprint grid — a real-estate/floorplan cue, never louder than the content */
+.blueprint-grid {
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.35;
 }
 
 @layer components {
@@ -224,3 +245,25 @@ body {
     border-color: var(--border);
   }
 }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #prediction-report,
+  #prediction-report * {
+    visibility: visible;
+  }
+  #prediction-report {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    box-shadow: none;
+    border: none;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
+

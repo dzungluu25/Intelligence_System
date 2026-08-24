@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Loader2, Search } from "lucide-react";
 import type { MetaResponse, PropertyInput } from "../lib/types";
+import { LEGAL_STATUS_LABELS } from "../lib/labels";
 
 const DEFAULT_INPUT: PropertyInput = {
   district: "",
@@ -15,6 +16,12 @@ const DEFAULT_INPUT: PropertyInput = {
   legalStatus: "",
   furnitureState: "",
 };
+
+const ALLEY_WIDTH_TIERS: { label: string; value: number }[] = [
+  { label: "< 2m", value: 1.5 },
+  { label: "2 – 3m", value: 2.5 },
+  { label: "Ô tô vào được", value: 5 },
+];
 
 export function PredictForm({
   meta,
@@ -101,12 +108,35 @@ export function PredictForm({
               onChange={(v) => update("frontage", v)}
               step={0.1}
             />
-            <NumberField
-              label="Đường vào (m)"
-              value={values.accessRoad}
-              onChange={(v) => update("accessRoad", v)}
-              step={0.1}
-            />
+            <div className="col-span-2">
+              <label className="field-label">Đường vào / Độ rộng ngõ (m)</label>
+              <input
+                type="number"
+                step={0.1}
+                min={0}
+                className="input-field"
+                value={values.accessRoad}
+                onChange={(e) => update("accessRoad", e.target.value === "" ? 0 : Number(e.target.value))}
+                required
+              />
+              <div className="mt-1.5 flex gap-1.5">
+                {ALLEY_WIDTH_TIERS.map((tier) => (
+                  <button
+                    key={tier.label}
+                    type="button"
+                    className="chip"
+                    style={{
+                      background: values.accessRoad === tier.value ? "var(--accent-soft)" : "var(--bg-subtle)",
+                      color: values.accessRoad === tier.value ? "var(--accent)" : "var(--text-muted)",
+                      border: "1px solid var(--border)",
+                    }}
+                    onClick={() => update("accessRoad", tier.value)}
+                  >
+                    {tier.label}
+                  </button>
+                ))}
+              </div>
+            </div>
             <NumberField label="Số tầng" value={values.floors} onChange={(v) => update("floors", v)} step={1} />
             <NumberField
               label="Phòng ngủ"
@@ -142,6 +172,7 @@ export function PredictForm({
               label="Pháp lý"
               value={values.legalStatus}
               options={meta?.categoricalOptions["Legal status"] ?? []}
+              labelFor={(o) => LEGAL_STATUS_LABELS[o] ?? o}
               onChange={(v) => update("legalStatus", v)}
             />
             <SelectField
@@ -194,11 +225,13 @@ function SelectField({
   value,
   options,
   onChange,
+  labelFor,
 }: {
   label: string;
   value: string;
   options: string[];
   onChange: (v: string) => void;
+  labelFor?: (raw: string) => string;
 }) {
   return (
     <div>
@@ -207,7 +240,7 @@ function SelectField({
         <option value="">-- Chọn --</option>
         {options.map((o) => (
           <option key={o} value={o}>
-            {o}
+            {labelFor ? labelFor(o) : o}
           </option>
         ))}
       </select>

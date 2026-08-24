@@ -1,4 +1,4 @@
-import { Building2, History, LayoutDashboard, Moon, Sun } from "lucide-react";
+import { History, Home, LayoutDashboard, Moon, Sun } from "lucide-react";
 import { useTheme } from "../lib/ThemeContext";
 
 export type View = "predict" | "history" | "insights";
@@ -12,12 +12,14 @@ export function Header({ view, onNavigate }: { view: View; onNavigate: (v: View)
         <div className="flex items-center gap-2.5">
           <div
             className="flex h-9 w-9 items-center justify-center rounded-xl"
-            style={{ background: "var(--accent)" }}
+            style={{ background: "var(--brand)" }}
           >
-            <Building2 className="h-5 w-5 text-white" />
+            <Home className="h-5 w-5" style={{ color: "#f4c69c" }} strokeWidth={2.25} />
           </div>
           <div className="leading-tight">
-            <p className="text-sm font-bold">Định Giá Nhà</p>
+            <p className="text-sm font-bold">
+              Định Giá <span style={{ color: "var(--accent)" }}>Nhà</span>
+            </p>
             <p className="text-[11px] text-muted hidden sm:block">Ước tính giá bất động sản bằng AI</p>
           </div>
         </div>
@@ -27,7 +29,7 @@ export function Header({ view, onNavigate }: { view: View; onNavigate: (v: View)
             className={`tab-btn ${view === "predict" ? "active" : ""}`}
             onClick={() => onNavigate("predict")}
           >
-            <Building2 className="h-4 w-4" />
+            <Home className="h-4 w-4" />
             <span className="hidden sm:inline">Định giá</span>
           </button>
           <button

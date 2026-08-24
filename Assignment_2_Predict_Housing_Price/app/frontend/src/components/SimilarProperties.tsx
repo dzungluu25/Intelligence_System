@@ -20,8 +20,8 @@ export function SimilarProperties({ district, area }: { district: string; area: 
         onClick={() => setOpen((v) => !v)}
       >
         <div>
-          <p className="text-sm font-bold">Bất động sản tương tự</p>
-          <p className="text-xs text-muted">Tin đăng thực tế gần với yêu cầu của bạn</p>
+          <p className="text-sm font-bold">Giao dịch lân cận</p>
+          <p className="text-xs text-muted">Tin đăng thực tế gần khu vực và diện tích bạn nhập</p>
         </div>
         <ChevronDown
           className="h-4 w-4 text-muted transition-transform shrink-0"

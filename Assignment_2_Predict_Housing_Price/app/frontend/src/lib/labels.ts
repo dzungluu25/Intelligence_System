@@ -7,6 +7,11 @@ export const MODEL_LABELS: Record<string, string> = {
   xgboost: "XGBoost",
 };
 
+export const LEGAL_STATUS_LABELS: Record<string, string> = {
+  "Have certificate": "Đã có Sổ đỏ/Sổ hồng",
+  "Sale contract": "Hợp đồng mua bán (chờ sổ)",
+};
+
 const FEATURE_LABELS: Record<string, string> = {
   Area: "Diện tích",
   Frontage: "Mặt tiền",
@@ -29,7 +34,11 @@ export function translateFeatureName(rawName: string): string {
   if (rawName in FEATURE_LABELS) return FEATURE_LABELS[rawName];
   for (const [prefix, label] of PREFIX_LABELS) {
     if (rawName.startsWith(prefix)) {
-      return `${label}${rawName.slice(prefix.length)}`;
+      const value = rawName.slice(prefix.length);
+      if (prefix === "Legal status_" && value in LEGAL_STATUS_LABELS) {
+        return `${label}${LEGAL_STATUS_LABELS[value]}`;
+      }
+      return `${label}${value}`;
     }
   }
   return rawName;

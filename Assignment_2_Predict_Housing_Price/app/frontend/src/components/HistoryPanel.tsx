@@ -27,7 +27,7 @@ export function HistoryPanel() {
           <p className="text-xs text-muted">Các lần ước tính gần đây của bạn</p>
         </div>
         {history && history.length > 0 && (
-          <button className="btn-ghost !py-1.5 !px-3 text-xs" onClick={handleClear}>
+          <button className="btn-ghost !px-3 text-xs" onClick={handleClear}>
             <Trash2 className="h-3.5 w-3.5" />
             Xóa lịch sử
           </button>

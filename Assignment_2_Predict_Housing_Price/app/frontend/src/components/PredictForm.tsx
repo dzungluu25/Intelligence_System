@@ -52,15 +52,15 @@ export function PredictForm({
         onSubmit(values);
       }}
     >
-      <div className="mb-4">
-        <h2 className="text-base font-bold">Thông tin bất động sản</h2>
-        <p className="text-xs text-muted">Nhập thông tin để nhận ước tính giá từ 6 mô hình AI</p>
+      <div className="mb-5">
+        <h2 className="text-lg font-bold">Thông tin bất động sản</h2>
+        <p className="text-sm text-muted mt-0.5">Nhập thông tin để nhận ước tính giá từ 6 mô hình AI</p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-5">
         <div>
           <p className="text-xs font-bold uppercase tracking-wide text-muted mb-2">Vị trí</p>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="field-label">Tỉnh / Thành phố</label>
               <select
@@ -121,7 +121,7 @@ export function PredictForm({
                 onChange={(e) => update("accessRoad", e.target.value === "" ? 0 : Number(e.target.value))}
                 required
               />
-              <div className="mt-1.5 flex gap-1.5">
+              <div className="mt-2 flex flex-wrap gap-2">
                 {ALLEY_WIDTH_TIERS.map((tier) => (
                   <button
                     key={tier.label}
@@ -146,18 +146,20 @@ export function PredictForm({
               onChange={(v) => update("bedrooms", v)}
               step={1}
             />
-            <NumberField
-              label="Phòng tắm"
-              value={values.bathrooms}
-              onChange={(v) => update("bathrooms", v)}
-              step={1}
-            />
+            <div className="col-span-2 sm:col-span-1">
+              <NumberField
+                label="Phòng tắm"
+                value={values.bathrooms}
+                onChange={(v) => update("bathrooms", v)}
+                step={1}
+              />
+            </div>
           </div>
         </div>
 
         <div>
           <p className="text-xs font-bold uppercase tracking-wide text-muted mb-2">Đặc điểm khác</p>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <SelectField
               label="Hướng nhà"
               value={values.houseDirection}
@@ -189,7 +191,7 @@ export function PredictForm({
 
       <button
         type="submit"
-        className="btn-primary ripple-surface mt-5 w-full"
+        className="btn-primary ripple-surface mt-6 w-full"
         onPointerDown={ripple}
         disabled={loading || !meta}
       >

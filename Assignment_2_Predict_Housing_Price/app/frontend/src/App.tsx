@@ -11,7 +11,7 @@ function AppShell() {
   return (
     <div className="min-h-screen">
       <Header view={view} onNavigate={setView} />
-      <main className="mx-auto max-w-6xl px-4 py-6 pb-24 sm:pb-6">
+      <main className="mx-auto max-w-6xl px-4 py-6 main-scroll-pad sm:pb-6">
         {view === "predict" && <PredictPage />}
         {view === "history" && <HistoryPanel />}
         {view === "insights" && <InsightsPage />}

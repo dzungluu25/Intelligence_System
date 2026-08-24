@@ -52,7 +52,7 @@ export function PredictionResult({ result, input }: { result: PredictResponse; i
         </div>
 
         <button
-          className="btn-ghost !py-2 !px-3 text-xs no-print"
+          className="btn-ghost !px-3 text-xs no-print"
           onClick={() => window.print()}
           title="Tải báo cáo chi tiết dạng PDF"
         >

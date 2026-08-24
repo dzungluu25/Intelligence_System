@@ -69,7 +69,7 @@ export function InsightsPage() {
         <div className="flex items-center justify-between mb-1 flex-wrap gap-2">
           <p className="text-sm font-bold">Mức độ quan trọng của đặc trưng</p>
           <select
-            className="input-field !w-auto text-xs !py-1.5"
+            className="input-field !w-auto text-xs"
             value={selectedModel}
             onChange={(e) => setSelectedModel(e.target.value as ModelName)}
           >

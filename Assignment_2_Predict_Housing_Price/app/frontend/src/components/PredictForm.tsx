@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Loader2, Search } from "lucide-react";
 import type { MetaResponse, PropertyInput } from "../lib/types";
 import { LEGAL_STATUS_LABELS } from "../lib/labels";
+import { useRipple } from "../lib/useRipple";
 
 const DEFAULT_INPUT: PropertyInput = {
   district: "",
@@ -34,6 +35,7 @@ export function PredictForm({
 }) {
   const [city, setCity] = useState("");
   const [values, setValues] = useState<PropertyInput>(DEFAULT_INPUT);
+  const ripple = useRipple();
 
   const cities = meta ? Object.keys(meta.locations).sort() : [];
   const districts = meta && city ? meta.locations[city] ?? [] : [];
@@ -185,7 +187,12 @@ export function PredictForm({
         </div>
       </div>
 
-      <button type="submit" className="btn-primary mt-5 w-full" disabled={loading || !meta}>
+      <button
+        type="submit"
+        className="btn-primary ripple-surface mt-5 w-full"
+        onPointerDown={ripple}
+        disabled={loading || !meta}
+      >
         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
         {loading ? "Đang tính toán..." : "Ước tính giá"}
       </button>

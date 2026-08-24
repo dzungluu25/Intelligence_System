@@ -54,7 +54,7 @@ export function PredictPage() {
         {!result && !error && (
           <div className="surface p-10 text-center">
             <p className="text-sm text-muted">
-              Điền thông tin bất động sản bên trái và nhấn "Ước tính giá" để xem kết quả từ 6 mô hình AI.
+              Điền thông tin bất động sản và nhấn "Ước tính giá" để xem kết quả từ 6 mô hình AI.
             </p>
           </div>
         )}

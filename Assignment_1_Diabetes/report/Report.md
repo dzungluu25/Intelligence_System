@@ -5,31 +5,31 @@
 
 # 1. Introduction
 
-Diabetes often goes undiagnosed until complications have already developed, even though the risk factors — glucose levels, BMI, blood pressure, family history — are already captured in a routine checkup. The Pima Indians Diabetes dataset gathers exactly these physiological and demographic measurements from adult female patients, alongside their eventual diagnosis, making it possible to frame early screening as a binary classification problem: given a patient's clinical profile, predict whether they are diabetic. Building on this dataset, several classical ML models are trained, tuned, and compared, and the best-performing classifier is deployed into an interactive screening application.
+Diabetes often goes undiagnosed until complications have already developed, even though the risk factors (glucose levels, BMI, blood pressure, family history) are already captured in a routine checkup. The Pima Indians Diabetes dataset gathers exactly these physiological and demographic measurements from adult female patients, alongside their eventual diagnosis, making it possible to frame early screening as a binary classification problem: given a patient's clinical profile, predict whether they are diabetic. Building on this dataset, several classical ML models are trained, tuned, and compared, and the best-performing classifier is deployed into an interactive screening application.
 
 # 2. System Definition
 
-This system acts as a clinical decision-support tool for the early triage of patients at risk of diabetes: it takes a patient's demographic and clinical measurements and returns a risk prediction that a healthcare professional can use to decide who needs closer follow-up. End to end, it moves a patient's raw checkup data through four stages — environment, representation, learning, and decision — as shown below.
+This system acts as a clinical decision-support tool for the early triage of patients at risk of diabetes: it takes a patient's demographic and clinical measurements and returns a risk prediction that a healthcare professional can use to decide who needs closer follow-up. End to end, it moves a patient's raw checkup data through four stages: environment, representation, learning, and decision, as shown below.
 
 ![Pipeline diagram](images/pipeline_diagram.png)
 *Figure 1. System pipeline: raw patient data is converted into a feature vector, passed through the trained classifier, and mapped to a binary diagnostic decision.*
 
-**Environment.** The system operates on routine checkup data — no specialized tests are required. Its intended users are clinicians performing an initial screening, and patients using the companion demo app to get a rough sense of their own risk.
+**Environment.** The system operates on routine checkup data; no specialized tests are required. Its intended users are clinicians performing an initial screening, and patients using the companion demo app to get a rough sense of their own risk.
 
 **Representation.** A patient's age and seven clinical measurements (Pregnancies, Glucose, Blood Pressure, Skin Thickness, Insulin, BMI, and Diabetes Pedigree Function) are packed into an 8-dimensional numerical feature vector. Physiologically impossible zero readings are filled in using statistics from the training data, and the vector is standardized when the learning algorithm is distance-based.
 
 **Learning.** A classifier is trained to map this 8-dimensional representation to the diagnostic outcomes observed in the training data, learning a decision boundary that generalizes to new patients.
 
-**Decision.** The system outputs a binary call — diabetic (1) or non-diabetic (0) — together with a probability estimate, so the result can be read as a risk level rather than a bare label.
+**Decision.** The system outputs a binary call, diabetic (1) or non-diabetic (0), together with a probability estimate, so the result can be read as a risk level rather than a bare label.
 
 **Formal problem statement:** *Given an 8-dimensional feature vector describing a patient's clinical profile, predict whether that patient is diabetic or non-diabetic.*
 
 # 3. Problem Definition
 
-- **What real-world problem does the system address?** Undiagnosed diabetes is often caught too late, once complications have already set in — a lightweight screening step that flags at-risk patients earlier gives clinicians a chance to intervene while lifestyle and treatment changes still have the most impact.
+- **What real-world problem does the system address?** Undiagnosed diabetes is often caught too late, once complications have already set in. A lightweight screening step that flags at-risk patients earlier gives clinicians a chance to intervene while lifestyle and treatment changes still have the most impact.
 - **What information does the system receive?** Eight values already sitting in a routine checkup: how many times the patient has been pregnant, their plasma glucose reading, diastolic blood pressure, triceps skin-fold thickness, serum insulin level, BMI, a pedigree score reflecting family history of diabetes, and age.
 - **How is that information represented internally?** The eight raw readings are packed into a single numeric vector $x \in \mathbb{R}^8$. Because some fields contain zero values that are biologically meaningless (e.g., a BMI or glucose reading of exactly 0), those entries are first replaced with the median computed from the training data, and every dimension is then rescaled to a common range so no single measurement dominates purely because of its units.
-- **What does the model learn?** A mapping $f_\theta(x)$ from that eight-dimensional vector to the historical diagnosis outcomes — in effect, the combinations of clinical values that tended to accompany a diabetes diagnosis in the training records.
+- **What does the model learn?** A mapping $f_\theta(x)$ from that eight-dimensional vector to the historical diagnosis outcomes, in effect the combinations of clinical values that tended to accompany a diabetes diagnosis in the training records.
 - **What decision or prediction does it produce?** A yes/no diagnostic call, $\hat{y} \in \{0, 1\}$, paired with a probability score, so the output reads as a risk level rather than a blunt label.
 - **Who or what uses the prediction?** Clinicians performing a first-pass triage, and, through the companion app, individual patients looking for an informal early indicator before pursuing formal testing.
 
@@ -37,7 +37,7 @@ This system acts as a clinical decision-support tool for the early triage of pat
 
 # 4. Dataset
 
-- **Dataset Source:** Kaggle — Diabetes Dataset ([https://www.kaggle.com/datasets/hasibur013/diabetes-dataset](https://www.kaggle.com/datasets/hasibur013/diabetes-dataset))
+- **Dataset Source:** Kaggle, Diabetes Dataset ([https://www.kaggle.com/datasets/hasibur013/diabetes-dataset](https://www.kaggle.com/datasets/hasibur013/diabetes-dataset))
 - **What real-world phenomenon is represented?** Clinical, demographic, and physiological risk factors influencing the onset of diabetes among adult female patients of Pima Indian heritage.
 - **What is one observation?** An individual patient record containing a cross-sectional set of diagnostic measurements collected during a single medical checkup.
 - **What are the features?** `Pregnancies`, `Glucose`, `BloodPressure`, `SkinThickness`, `Insulin`, `BMI`, `DiabetesPedigreeFunction`, and `Age`.
@@ -46,7 +46,7 @@ This system acts as a clinical decision-support tool for the early triage of pat
 - **Is this regression or classification?** Supervised binary classification.
 - **How many observations are available?** 768 patient samples.
 - **How many features are available?** 8 input predictor variables.
-- **Which features are numerical?** All 8 input features — a combination of continuous medical readings and discrete counts.
+- **Which features are numerical?** All 8 input features, a combination of continuous medical readings and discrete counts.
 - **Which features are categorical?** None of the input predictor features; only the target variable `Outcome` is categorical.
 
 # 5. Data Representation
@@ -66,7 +66,7 @@ A patient's clinical profile is represented as an 8-dimensional numerical featur
 
 ## Feature Analysis & Preprocessing
 
-All 8 input features are numerical, while the target variable `Outcome` is binary categorical (1 for diabetic, 0 for non-diabetic). The raw input features operate on significantly different numerical scales—for instance, `DiabetesPedigreeFunction` values are typically below 3.0, whereas `Insulin` measurements can reach into the hundreds. Additionally, several continuous clinical fields contain physiologically invalid zero readings (such as zero `Glucose` or zero `BMI`), indicating missing patient data.
+All 8 input features are numerical, while the target variable `Outcome` is binary categorical (1 for diabetic, 0 for non-diabetic). The raw input features operate on significantly different numerical scales; for instance, `DiabetesPedigreeFunction` values are typically below 3.0, whereas `Insulin` measurements can reach into the hundreds. Additionally, several continuous clinical fields contain physiologically invalid zero readings (such as zero `Glucose` or zero `BMI`), indicating missing patient data.
 
 To address these data properties, a two-step preprocessing pipeline is applied:
 1. **Missing Data Imputation:** Physiologically invalid zero values in continuous clinical measurements are treated as missing data and imputed using median statistics calculated strictly from the training split.
@@ -90,7 +90,7 @@ To address the diagnostic task, seven classical machine learning models (includi
 
 - **What representation does it receive?** Standardized numerical vectors.
 - **What relationship does it try to learn?** A flat hyperplane positioned to maximize the gap between diabetic and non-diabetic patients.
-- **What parameters or structures are learned?** The hyperplane's weight vector, defined by the support vectors — the small subset of points sitting nearest the boundary.
+- **What parameters or structures are learned?** The hyperplane's weight vector, defined by the support vectors, the small subset of points sitting nearest the boundary.
 - **What criterion guides learning?** Widening the margin while penalizing misclassified or margin-violating points, controlled by the regularization strength C.
 - **What assumptions does the model make?** The two outcome classes are approximately separable by a straight boundary.
 - **What are its strengths?** Handles outliers well under proper tuning, and remains effective even with many input dimensions.
@@ -109,7 +109,7 @@ To address the diagnostic task, seven classical machine learning models (includi
 ## 4. K-Nearest Neighbors (KNN)
 
 - **What representation does it receive?** Standardized numerical vectors.
-- **What relationship does it try to learn?** Nothing is fit explicitly — a new patient's label is decided by a vote among the k closest patients in the training data.
+- **What relationship does it try to learn?** Nothing is fit explicitly; a new patient's label is decided by a vote among the k closest patients in the training data.
 - **What parameters or structures are learned?** No parameters in the usual sense; the training set itself is retained and consulted at prediction time, with k as the main tunable setting.
 - **What criterion guides learning?** There is no training-phase objective to minimize; k is instead selected through cross-validation to reduce validation error.
 - **What assumptions does the model make?** Patients who are near each other in the standardized feature space tend to share the same diagnosis.
@@ -118,11 +118,11 @@ To address the diagnostic task, seven classical machine learning models (includi
 
 ## 5. Random Forest
 
-- **What representation does it receive?** Raw, unscaled numerical vectors — tree splits are unaffected by monotonic rescaling.
+- **What representation does it receive?** Raw, unscaled numerical vectors; tree splits are unaffected by monotonic rescaling.
 - **What relationship does it try to learn?** A set of non-linear decision rules, produced by averaging many decision trees each trained on a bootstrapped sample and a random subset of features.
 - **What parameters or structures are learned?** The split feature and threshold at every node of every tree, with final predictions aggregated by majority vote.
 - **What criterion guides learning?** Each tree greedily reduces impurity (e.g., the Gini index) at each split as it grows.
-- **What assumptions does the model make?** Very few — no linearity requirement and no assumed distribution for the input features.
+- **What assumptions does the model make?** Very few: no linearity requirement and no assumed distribution for the input features.
 - **What are its strengths?** Captures non-linear patterns and feature interactions, resists overfitting better than a lone decision tree, and yields feature-importance estimates as a byproduct.
 - **What are its weaknesses?** Harder to interpret than a single tree or a linear model, and can be more expensive to tune.
 
@@ -131,26 +131,26 @@ To address the diagnostic task, seven classical machine learning models (includi
 - **What representation does it receive?** Raw, unscaled numerical vectors.
 - **What relationship does it try to learn?** A non-linear predictor assembled by adding decision trees one at a time, each new tree correcting the mistakes left by the ensemble so far.
 - **What parameters or structures are learned?** The structure and leaf weights of every boosted tree added during training.
-- **What criterion guides learning?** Gradient boosting to minimize a regularized loss — log-loss plus a penalty term that discourages overly complex trees.
+- **What criterion guides learning?** Gradient boosting to minimize a regularized loss: log-loss plus a penalty term that discourages overly complex trees.
 - **What assumptions does the model make?** Few assumptions about the data's distribution, though it can overfit small datasets without regularization and early stopping.
 - **What are its strengths?** Tends to deliver strong results on tabular data and picks up on complex feature interactions.
 - **What are its weaknesses?** Has more hyperparameters to tune, overfits more readily on small datasets, and is less transparent than simpler models.
 
 ## 7. Dummy Classifier (Baseline)
 
-- **What representation does it receive?** None — the input features play no role in its predictions.
+- **What representation does it receive?** None; the input features play no role in its predictions.
 - **What relationship does it try to learn?** Nothing feature-related; it predicts purely from the label distribution seen during training (e.g., always guessing the majority class, or guessing proportionally to class frequency).
 - **What parameters or structures are learned?** The observed class frequencies (or simply the majority class) from the training set.
 - **What criterion guides learning?** None beyond tallying how often each label appeared in training.
-- **What assumptions does the model make?** None about the features — only that future data shares the same class balance as the training set.
+- **What assumptions does the model make?** None about the features, only that future data shares the same class balance as the training set.
 - **What are its strengths?** Establishes a trivial performance floor so the other models can be judged against a naive reference point rather than in isolation.
-- **What are its weaknesses?** Carries no real predictive signal — any useful model should clearly outperform it.
+- **What are its weaknesses?** Carries no real predictive signal; any useful model should clearly outperform it.
 
 # 7. Experimental Design
 
 To systematically evaluate the models and the impact of data representation, three experiments were designed and executed.
 
-The dataset is split into training and test sets with an 80/20 ratio, using stratified sampling on `Outcome` so both sets keep roughly the same class balance. This split happens before any imputation or scaling. All preprocessing statistics — the median used for imputation, the mean and variance used for standardization — are computed only from the training set, then applied to both training and test sets.
+The dataset is split into training and test sets with an 80/20 ratio, using stratified sampling on `Outcome` so both sets keep roughly the same class balance. This split happens before any imputation or scaling. All preprocessing statistics (the median used for imputation, the mean and variance used for standardization) are computed only from the training set, then applied to both training and test sets.
 
 ## Experiment 1: Model Comparison
 
@@ -167,7 +167,7 @@ The dataset is split into training and test sets with an 80/20 ratio, using stra
 ## Experiment 3: Representation / Feature Investigation
 
 - **Question:** Does standardizing (scaling) the feature vectors actually make a difference for distance-based models like KNN?
-- **Setup:** A KNN classifier ($k=5$) is trained twice — once on the unscaled features and once on the scaled ones — and the two test accuracies are compared directly.
+- **Setup:** A KNN classifier ($k=5$) is trained twice, once on the unscaled features and once on the scaled ones, and the two test accuracies are compared directly.
 - **Result:** Unscaled accuracy came out to 67.53%, whereas scaled accuracy reached 80.52%. Standardizing forces every feature to contribute proportionally to the Euclidean distance calculation, confirming that scaling is a critical factor for distance-sensitive models.
 
 # 8. Results
@@ -190,7 +190,7 @@ To compare the models trained in this section, the following table summarizes th
 
 ## Confusion Matrices (Held-Out Test Split)
 
-Beyond the aggregate metrics above, the confusion matrix for each model shows exactly where its errors fall — specifically, whether it tends to miss diabetic cases (false negatives) or over-flag healthy patients (false positives), which matters for a screening tool where the two error types carry different clinical costs.
+Beyond the aggregate metrics above, the confusion matrix for each model shows exactly where its errors fall, specifically whether it tends to miss diabetic cases (false negatives) or over-flag healthy patients (false positives), which matters for a screening tool where the two error types carry different clinical costs.
 
 | Model | TN | FP | FN | TP |
 | :--- | :--- | :--- | :--- | :--- |
@@ -201,7 +201,7 @@ Beyond the aggregate metrics above, the confusion matrix for each model shows ex
 | Random Forest | 86 | 14 | 22 | 32 |
 | XGBoost | 83 | 17 | 22 | 32 |
 
-XGBoost and Random Forest post the fewest false positives (14–17) while also keeping false negatives low, which is why they lead on F1-score. SVM (RBF) has the most false negatives (29) despite a respectable overall accuracy — a reminder that accuracy alone can mask a model's tendency to miss actual diabetic cases, which is the costlier error for a screening tool.
+XGBoost and Random Forest post the fewest false positives (14–17) while also keeping false negatives low, which is why they lead on F1-score. SVM (RBF) has the most false negatives (29) despite a respectable overall accuracy, a reminder that accuracy alone can mask a model's tendency to miss actual diabetic cases, which is the costlier error for a screening tool.
 
 \newpage
 
@@ -209,7 +209,7 @@ XGBoost and Random Forest post the fewest false positives (14–17) while also k
 
 Which model generalizes best on the held-out test set, taking Accuracy, Precision, Recall, and F1-score together rather than any single metric?
 
-Ranked by F1-score, the results in the table above split the seven models into three clear tiers. At the top, the two tree ensembles — XGBoost (F1 0.826) and Random Forest (F1 0.804) — lead the field by a comfortable margin, both combining strong precision with strong recall rather than trading one off for the other. SVM (RBF) forms a middle tier on its own at an F1 of 0.775, clearly ahead of the remaining models but still behind the ensembles, suggesting its kernel captures much of the non-linear structure in the data without fully matching what tree-based splitting achieves. KNN sits just below at 0.722. The two linear models, SVM (Linear) and Logistic Regression, form the weakest tier among the real classifiers (F1 0.630 and 0.571 respectively), consistent with the non-linear relationship between features and outcome noted in Section 6. All six trained models comfortably beat the majority-class baseline (F1 0.000), confirming that each one is learning genuine signal rather than just reflecting the class imbalance in the dataset.
+Ranked by F1-score, the results in the table above split the seven models into three clear tiers. At the top, the two tree ensembles, XGBoost (F1 0.826) and Random Forest (F1 0.804), lead the field by a comfortable margin, both combining strong precision with strong recall rather than trading one off for the other. SVM (RBF) forms a middle tier on its own at an F1 of 0.775, clearly ahead of the remaining models but still behind the ensembles, suggesting its kernel captures much of the non-linear structure in the data without fully matching what tree-based splitting achieves. KNN sits just below at 0.722. The two linear models, SVM (Linear) and Logistic Regression, form the weakest tier among the real classifiers (F1 0.630 and 0.571 respectively), consistent with the non-linear relationship between features and outcome noted in Section 6. All six trained models comfortably beat the majority-class baseline (F1 0.000), confirming that each one is learning genuine signal rather than just reflecting the class imbalance in the dataset.
 
 ## Final Model Selection
 
@@ -226,7 +226,7 @@ Based on the test set performance, XGBoost was selected as the final model with 
 - **Could it be represented as a sequence?** Yes, if we tracked the patient's measurements over multiple successive clinical visits, which would model the patient's trajectory using recurrent architectures like LSTMs or Transformers.
 - **Could it be represented as a graph?** Yes, if patient nodes were linked using familial/genetic relationships or clinic location vectors to model transmission or hereditary patterns using Graph Neural Networks (GNNs).
 - **Could it be represented using learned embeddings?** Yes, if the inputs were unstructured (such as clinician notes in text form) rather than raw numerical features, which would require Transformer-based text embeddings.
-- **What would change if the representation changed?** The model architecture would change entirely—CNNs for images, RNNs/Transformers for sequences, and GNNs for graphs—increasing computational complexity and requiring significantly larger training datasets.
+- **What would change if the representation changed?** The model architecture would change entirely: CNNs for images, RNNs/Transformers for sequences, and GNNs for graphs, increasing computational complexity and requiring significantly larger training datasets.
 
 # 11. Application
 
@@ -248,7 +248,7 @@ The screenshots below demonstrate a complete prediction workflow: entering the p
 
 ## Demonstration: Three Input Cases
 
-To confirm the system responds sensibly across the risk spectrum, three synthetic patient profiles — low-risk, borderline, and high-risk — were passed through the deployed pipeline. Each case is run through all six trained models, and the app combines their votes into an accuracy-weighted ensemble score:
+To confirm the system responds sensibly across the risk spectrum, three synthetic patient profiles (low-risk, borderline, and high-risk) were passed through the deployed pipeline. Each case is run through all six trained models, and the app combines their votes into an accuracy-weighted ensemble score:
 
 | Case | Glucose | BMI | Age | Pedigree | Ensemble Verdict | Risk Score | Model Agreement |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -270,15 +270,15 @@ The system shows real predictive ability, but it isn't ready to be used as a sta
 
 # 13. Reflection
 
-- **What information does your system receive?** The eight clinical and demographic fields already used throughout this report — nothing else. There's no notion of the patient's medical history, current symptoms, or any context beyond that fixed set of numbers.
-- **What is the internal representation?** Those eight raw readings, after invalid zeros are imputed and every value is standardized, become one 8-dimensional numeric vector. The model has no concept of "patient" — it only ever sees a point in that 8-dimensional space.
-- **What does the model learn from examples?** Given many such vectors paired with their known outcomes, the model learns a decision surface — coefficients for the linear models, split thresholds for the trees, neighborhood structure for KNN — that best separates diabetic from non-diabetic cases in the training data. It is capturing statistical association, not a biological mechanism.
+- **What information does your system receive?** The eight clinical and demographic fields already used throughout this report, nothing else. There's no notion of the patient's medical history, current symptoms, or any context beyond that fixed set of numbers.
+- **What is the internal representation?** Those eight raw readings, after invalid zeros are imputed and every value is standardized, become one 8-dimensional numeric vector. The model has no concept of "patient"; it only ever sees a point in that 8-dimensional space.
+- **What does the model learn from examples?** Given many such vectors paired with their known outcomes, the model learns a decision surface (coefficients for the linear models, split thresholds for the trees, neighborhood structure for KNN) that best separates diabetic from non-diabetic cases in the training data. It is capturing statistical association, not a biological mechanism.
 - **What prediction or decision does it make?** A binary call, diabetic or non-diabetic, together with a probability that turns the raw label into a risk estimate.
-- **Why can it handle an unseen input?** Because training doesn't memorize individual patients — it fits a general boundary in feature space. Any new patient, once converted into the same 8-dimensional representation, lands somewhere relative to that boundary and gets classified accordingly, even if their exact combination of values never appeared during training.
-- **What part of the system can reasonably be called "intelligent"?** The learning step itself — the algorithm searching for parameters that reduce error on the training examples without a human writing explicit diagnostic rules. Deciding which models to try, which hyperparameters to tune, and which metric to optimize for is a separate, human-driven form of judgment that sits outside the model.
-- **What limitations prevent it from being a more capable intelligent system?** It cannot ask a clarifying question, incorporate a doctor's notes, track how a patient's condition evolves, or justify its output the way a clinician would explain a diagnosis — which is precisely why the demo application layers a SHAP explanation on top rather than presenting a bare label, and why the system is scoped as a screening aid rather than an autonomous diagnostic tool.
+- **Why can it handle an unseen input?** Because training doesn't memorize individual patients; it fits a general boundary in feature space. Any new patient, once converted into the same 8-dimensional representation, lands somewhere relative to that boundary and gets classified accordingly, even if their exact combination of values never appeared during training.
+- **What part of the system can reasonably be called "intelligent"?** The learning step itself: the algorithm searching for parameters that reduce error on the training examples without a human writing explicit diagnostic rules. Deciding which models to try, which hyperparameters to tune, and which metric to optimize for is a separate, human-driven form of judgment that sits outside the model.
+- **What limitations prevent it from being a more capable intelligent system?** It cannot ask a clarifying question, incorporate a doctor's notes, track how a patient's condition evolves, or justify its output the way a clinician would explain a diagnosis, which is precisely why the demo application layers a SHAP explanation on top rather than presenting a bare label, and why the system is scoped as a screening aid rather than an autonomous diagnostic tool.
 
 # 14. Conclusion
 
-In conclusion, this project implements a complete clinical machine learning pipeline, from problem formulation to deploying a working prototype. The results highlight that data representation—particularly standardization for distance-sensitive algorithms—is as critical to model performance as the choice of algorithm itself, and systematic hyperparameter tuning is essential to achieve robust generalization. The final system serves as a practical demonstration of an intelligent screening tool that translates raw checkup data into actionable clinical decisions.
+In conclusion, this project implements a complete clinical machine learning pipeline, from problem formulation to deploying a working prototype. The results highlight that data representation, particularly standardization for distance-sensitive algorithms, is as critical to model performance as the choice of algorithm itself, and systematic hyperparameter tuning is essential to achieve robust generalization. The final system serves as a practical demonstration of an intelligent screening tool that translates raw checkup data into actionable clinical decisions.
 

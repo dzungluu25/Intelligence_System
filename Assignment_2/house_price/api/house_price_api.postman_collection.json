@@ -1,76 +1,116 @@
 {
   "info": {
-    "name": "Assignment 02 - House-Price API",
-    "description": "POST /predict for the house-price prediction service (Assignment 02, Application 2). Import into Postman, set the {{baseUrl}} collection variable, run the requests. Start the API first:  uvicorn api.main:app --reload --port 8001  (from Assignment_2/).",
+    "_postman_id": "house-price-api-v1",
+    "name": "House Price Prediction API (Assignment 02)",
+    "description": "Evidence requests for Part XI/XIII and Appendix D. BaseUrl defaults to http://localhost:8002",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:8001", "type": "string" }
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8002",
+      "type": "string"
+    }
   ],
   "item": [
     {
-      "name": "Health check",
+      "name": "1. GET /healthz (Health Probe)",
       "request": {
         "method": "GET",
         "header": [],
-        "url": { "raw": "{{baseUrl}}/healthz", "host": ["{{baseUrl}}"], "path": ["healthz"] },
-        "description": "Returns { status, model_loaded, model_name }. model_loaded is false until notebook/house_price.ipynb section 22 has produced model/model_pipeline.joblib."
+        "url": {
+          "raw": "{{baseUrl}}/healthz",
+          "host": ["{{baseUrl}}"],
+          "path": ["healthz"]
+        }
       },
       "response": []
     },
     {
-      "name": "Predict - full input",
+      "name": "2. POST /predict (Full Property Payload)",
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"Area\": 78.7,\n  \"Width\": 4.0,\n  \"Bedrooms\": 3,\n  \"Bathrooms\": 2,\n  \"Floors\": 2,\n  \"Property Type\": \"Nhà riêng\",\n  \"Position\": \"Đường chính\",\n  \"Direction\": \"Nam\",\n  \"Road Type\": \"Đường nhựa\",\n  \"Province\": \"an-giang\",\n  \"Agent Role\": \"Chính chủ\",\n  \"ward\": \"Phường An Hòa\",\n  \"district\": \"Rạch Giá\"\n}"
+          "raw": "{\n  \"Area\": 78.7,\n  \"Width\": 4.0,\n  \"Length\": 19.6,\n  \"Bedrooms\": 3,\n  \"Bathrooms\": 2,\n  \"Floors\": 2,\n  \"Alley Width\": 3.5,\n  \"Agent Listing Count\": 1,\n  \"Property Type\": \"Nhà riêng\",\n  \"Position\": \"Đường chính\",\n  \"Direction\": \"Nam\",\n  \"Road Type\": \"Đường nhựa\",\n  \"Province\": \"an-giang\",\n  \"Agent Role\": \"Chính chủ\",\n  \"ward\": \"Phường An Hòa\",\n  \"district\": \"Rạch Giá\"\n}"
         },
-        "url": { "raw": "{{baseUrl}}/predict", "host": ["{{baseUrl}}"], "path": ["predict"] },
-        "description": "Every field supplied. Expected response: { predicted_price, price_per_m2, currency, model_name }."
+        "url": {
+          "raw": "{{baseUrl}}/predict",
+          "host": ["{{baseUrl}}"],
+          "path": ["predict"]
+        }
       },
       "response": []
     },
     {
-      "name": "Predict - minimal input (Area only)",
+      "name": "3. POST /predict (Minimal Payload - Area Only)",
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"Area\": 115.0\n}"
+          "raw": "{\n  \"Area\": 85.0\n}"
         },
-        "url": { "raw": "{{baseUrl}}/predict", "host": ["{{baseUrl}}"], "path": ["predict"] },
-        "description": "Only the required field. All other columns are imputed by the SAVED pipeline exactly as during training (no new imputer is fitted)."
+        "url": {
+          "raw": "{{baseUrl}}/predict",
+          "host": ["{{baseUrl}}"],
+          "path": ["predict"]
+        }
       },
       "response": []
     },
     {
-      "name": "Predict - apartment example",
+      "name": "4. POST /predict (Apartment in Ho Chi Minh City)",
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"Area\": 68.0,\n  \"Bedrooms\": 2,\n  \"Bathrooms\": 2,\n  \"Floors\": 15,\n  \"Property Type\": \"Căn hộ chung cư\",\n  \"Direction\": \"Đông Nam\",\n  \"Province\": \"tp-ho-chi-minh\",\n  \"district\": \"Quận 7\"\n}"
+          "raw": "{\n  \"Area\": 65.5,\n  \"Bedrooms\": 2,\n  \"Bathrooms\": 2,\n  \"Floors\": 1,\n  \"Property Type\": \"Căn hộ chung cư\",\n  \"Position\": \"Đường chính\",\n  \"Direction\": \"Đông Nam\",\n  \"Province\": \"tp-ho-chi-minh\",\n  \"district\": \"Quận 7\"\n}"
         },
-        "url": { "raw": "{{baseUrl}}/predict", "host": ["{{baseUrl}}"], "path": ["predict"] },
-        "description": "A different property type to show the model handles the full listing mix."
+        "url": {
+          "raw": "{{baseUrl}}/predict",
+          "host": ["{{baseUrl}}"],
+          "path": ["predict"]
+        }
       },
       "response": []
     },
     {
-      "name": "Predict - invalid (missing Area) -> 422",
+      "name": "5. POST /predict (Invalid Input - Expects 422)",
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"Bedrooms\": 3\n}"
+          "raw": "{\n  \"Area\": -15.0\n}"
         },
-        "url": { "raw": "{{baseUrl}}/predict", "host": ["{{baseUrl}}"], "path": ["predict"] },
-        "description": "Area is required. FastAPI returns 422 with a validation error body — use this as the 'input validation' evidence for the report."
+        "url": {
+          "raw": "{{baseUrl}}/predict",
+          "host": ["{{baseUrl}}"],
+          "path": ["predict"]
+        }
       },
       "response": []
     }

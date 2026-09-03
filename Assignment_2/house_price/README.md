@@ -36,7 +36,7 @@ Assignment_2/house_price/
 │   └── feature_names.joblib          produced by notebook §22 (gitignored)
 ├── api/                              FastAPI service — POST /predict (Appendix C)
 ├── web/                              Vite + React + TS client (Appendix D)
-├── mobile/                          Capacitor (Android + iOS) client (Appendix E)
+├── mobile/                           Flutter (Android + iOS) native client (Appendix E)
 ├── requirements.txt
 └── README.md                        (this file)
 ```
@@ -85,22 +85,21 @@ input dict into a JSON prediction — the contract the API depends on.
 ### 4. API
 
 ```bash
-# from Assignment_2/house_price/
-uvicorn api.main:app --reload --port 8001
-# Swagger UI: http://localhost:8001/docs
+# from Assignment_2/
+uvicorn house_price.api.main:app --reload --port 8002
+# Swagger UI: http://localhost:8002/docs
 ```
 
 ```bash
-curl -s -X POST http://localhost:8001/predict -H 'content-type: application/json' \
+curl -s -X POST http://localhost:8002/predict -H 'content-type: application/json' \
   -d '{"Area": 78.7, "Bedrooms": 3, "Bathrooms": 2, "Floors": 2, "Property Type": "Nhà riêng", "Province": "an-giang", "district": "Rạch Giá"}'
-# -> { "predicted_price": <million VND>, "price_per_m2": ..., "model_name": "..." }
+# -> { "predicted_price": 2381.21, "price_per_m2": 30.26, "formatted_price_billion": "2.38 tỷ VNĐ", "model_name": "RandomForestRegressor" }
 ```
 
 See [`api/README.md`](api/README.md) for the full endpoint list and request shape.
-For **Postman**, import `api/house_price_api.postman_collection.json` (set the `{{baseUrl}}`
-variable, then run the requests).
+For **Postman**, import `api/house_price_api.postman_collection.json` (set `baseUrl` to `http://localhost:8002`).
 
-### 5. Web
+### 5. Web Client
 
 ```bash
 cd web
@@ -108,23 +107,17 @@ npm install
 npm run dev          # http://localhost:5173
 ```
 
-> The `web/` and `mobile/` clients were built against an earlier Node backend
-> (`/api/predict`, camelCase payload, `/api/meta`, SHAP endpoints). They need rewiring
-> to the FastAPI `POST /predict` above, or compatibility routes added to `api/`. Tracked
-> in `web/README.md`.
+Built fresh with Vite + React 18 + TypeScript, connecting directly to FastAPI `POST /predict` and `GET /healthz`.
 
-### 6. Mobile
+### 6. Mobile Client (Flutter)
 
 ```bash
 cd mobile
-npm install
-npx cap sync
-npx cap run android      # or: open ios/App/App.xcworkspace
+flutter pub get
+flutter run          # Runs on Android emulator, iOS simulator, or connected device
 ```
 
-Point the client at the API host (`web/.env` / the mobile config). Training happens only
-in the notebook; the mobile app is a REST client of the deployed model
-(**Training ≠ Inference**).
+The mobile client is a native **Flutter** cross-platform application (Material 3). Training happens only in the notebook; the mobile app is a pure REST client (**Training ≠ Inference**). Tap the server status badge in the top-right corner to point the app to `http://10.0.2.2:8002` (Android emulator) or your host machine's Wi-Fi LAN IP.
 
 ## Deliverable checklist (Appendix F, house-price rows)
 

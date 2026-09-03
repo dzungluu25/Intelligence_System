@@ -43,5 +43,8 @@ report/*.toc
 # --- local scratch (not part of the deliverable) ---
 _scratch/
 
+# --- planning docs (working notes, not part of the deliverable) ---
+plan/
+
 # --- OS ---
 .DS_Store

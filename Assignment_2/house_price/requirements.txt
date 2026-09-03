@@ -1,6 +1,6 @@
 # House-price application (Assignment 2) — Python dependencies for the notebook + API.
 # The web client is React + Vite (see web/package.json, Node 18+); the mobile client
-# is Capacitor (see mobile/). Neither needs this file.
+# is Flutter (see mobile/). Neither needs this file.
 #
 # Tested on Python 3.14 (see notebook §0 for the exact recorded versions).
 # RANDOM_SEED = 42 throughout.
@@ -8,7 +8,7 @@
 # --- core ML / data ---
 numpy>=2.0
 pandas>=2.2
-scikit-learn>=1.5
+scikit-learn==1.9.0
 scipy>=1.13
 joblib>=1.3
 

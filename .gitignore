@@ -26,3 +26,7 @@ build/
 
 # Runtime data
 app/backend/data/history.json
+
+# Assignment 2 raw dataset (210 MB — obtain per Assignment_2/house_price/data/README.md)
+/VN-real-estate-Apr-Sept-2025.csv
+Assignment_2/*/data/*.csv

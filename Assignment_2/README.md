@@ -1,36 +1,45 @@
-# Assignment 02 — From Data Representation to Deployable Intelligent Systems
+# Assignment 02 — From Data Representation to a Deployable Intelligent System
 
-Three intelligent applications built on the **same pipeline**, so their differences can
-be compared side by side:
+**Course:** Intelligence System Development — PTIT  
+**Instructor:** Assoc. Prof. Dinh Que Tran, Ph.D.  
+**Report:** `report/Assignment_02.pdf`
+
+Three independent intelligent applications built on the same end-to-end pipeline:
 
 ```
 Raw data → Understand → Clean → Represent → Learn → Evaluate → Persist → Deploy
 ```
 
-| # | Application | Task | Raw form | Representation | Status |
-|---|---|---|---|---|---|
-| 1 | **Diabetes** prediction | binary classification | CSV (BRFSS survey) | feature matrix `X ∈ ℝ^{N×23}` | ✅ notebook · API · web · mobile |
-| 2 | **House price** prediction | regression | CSV | encoded + scaled feature matrix | ⏳ not started |
-| 3 | **Customer behaviour** (Olist e-commerce) | binary classification | 9 CSV tables + review comments | tabular `ℝ^{43}` **‖** TF-IDF text `ℝ^{~13000}` | ✅ notebook · API · web · mobile |
+| # | Application | Task | Dataset | Status |
+|---|---|---|---|---|
+| 1 | **Diabetes** prediction | binary classification | BRFSS 2015 (Kaggle) | ✅ complete |
+| 2 | **House price** prediction | regression | Vietnam house price (Kaggle) | ✅ complete |
+| 3 | **Customer behaviour** prediction | binary classification | Olist e-commerce (Kaggle) | ✅ complete |
 
-Each application is self-contained under its own folder with an identical layout
-(Appendix A):
+Each application is self-contained under its own folder:
 
 ```
 <app>/
-  data/        raw dataset (or download reference)
-  notebook/    <app>.ipynb  — the 23-section ML experiment, executed with outputs
-  model/       model_pipeline.joblib  +  feature_names.joblib  +  input_schema.json
-  api/         FastAPI service exposing POST /predict
-  web/         React + Vite single-page client (no model in the browser)
-  mobile/      Flutter client (REST client of the API)
+  data/            raw dataset (or download reference)
+  notebook/        <app>.ipynb  — ML experiment (23 sections, executed with outputs)
+  model/           model_pipeline.joblib  +  feature_names.joblib  +  input_schema.json
+  api/             FastAPI service  →  POST /predict
+  web/             React + Vite single-page client
+  mobile/          Flutter client (REST consumer)
   requirements.txt
-report/        Assignment_02.pdf  (final ~10-page report)
+report/
+  Assignment_02.pdf   ← final submitted report
 ```
 
-The **report** is written from each app's `Report_Deliverable.md` guide
-(`diabetes/Report_Deliverable.md`, `customer_behaviour/Report_Deliverable.md`) plus the
-executed notebooks.
+---
+
+## Data representation summary
+
+| Application | Raw form | Numerical representation | Model input |
+|---|---|---|---|
+| Diabetes | CSV (survey) | 21 raw + 2 engineered, `StandardScaler` on 8 numeric cols | `X ∈ ℝ^{N×23}` dense |
+| House price | CSV (listings) | encoded + scaled tabular features | `X ∈ ℝ^{N×d}` dense |
+| Customer behaviour | 9 CSV tables + text reviews | 20 tabular → `ℝ^{43}` (impute, log1p, scale, one-hot) ∥ TF-IDF comment → `ℝ^{~13000}` sparse | `X ∈ ℝ^{N×~13000}` sparse |
 
 ---
 
@@ -38,143 +47,144 @@ executed notebooks.
 
 | | |
 |---|---|
-| Python | 3.13 (3.14 also tested for diabetes) |
-| OS | Windows 11 |
-| Random seed | `RANDOM_SEED = 42` everywhere (numpy, `random`, every split / subsample / estimator) |
+| Python | 3.10+ |
+| Random seed | `42` (numpy, random, every split / estimator) |
 | Node (web) | 18+ |
 | Flutter (mobile) | 3.19+ |
 
-Each app pins its Python deps in `<app>/requirements.txt`. Install per app:
+Install per app:
 
 ```bash
-cd assignment_02/<app>
+cd <app>/
 pip install -r requirements.txt
 ```
-
----
-
-## Data-representation summary (mandatory table)
-
-| Application | Raw form | Numerical representation | Model input |
-|---|---|---|---|
-| Diabetes | CSV / table | 21 raw + 2 engineered → feature vector, `StandardScaler` on 8 numeric cols, no one-hot | `X ∈ ℝ^{N×23}` dense |
-| House price | CSV / table | encoded + scaled feature matrix | `X ∈ ℝ^{N×d}` *(pending)* |
-| Customer behaviour | 9 CSV tables + PT review comments | 20 tabular cols → `ℝ^{43}` (impute → log1p money → scale; one-hot payment/region/category) **‖** `TfidfVectorizer(1–2-gram)` on the comment → `ℝ^{~13000}` sparse | `X ∈ ℝ^{N×~13000}` sparse, `N = 95,824` |
-
-Every dimension is explained in the corresponding notebook §12 and in the report.
 
 ---
 
 ## Application 1 — Diabetes
 
-**Dataset:** Kaggle `alexteboul/diabetes-health-indicators-dataset`
-(`diabetes_012_health_indicators_BRFSS2015.csv`), already in `diabetes/data/`.
-253,680 rows → 229,781 after de-duplication. Target `Diabetes_binary`.
-**Deployed model:** Random Forest, test ROC-AUC ≈ 0.81, recall ≈ 0.74.
+**Dataset:** `alexteboul/diabetes-health-indicators-dataset` — `diabetes_012_health_indicators_BRFSS2015.csv`  
+253,680 rows → 229,781 after de-duplication. Target: `Diabetes_binary`.  
+**Model:** Random Forest — test ROC-AUC ≈ 0.81, recall ≈ 0.74.
 
 ```bash
-cd assignment_02/diabetes
+cd diabetes/
 
-# 1. reproduce the experiment (writes model/*.joblib)
+# 1. reproduce experiment (writes model/*.joblib)
 jupyter nbconvert --to notebook --execute notebook/diabetes.ipynb --output diabetes.ipynb
-python api/build_artifacts.py            # one-off serving artifacts (neighbour index, SHAP bg)
+python api/build_artifacts.py   # SHAP background + neighbour index
 
-# 2. run the API  ->  http://localhost:8000/docs
+# 2. API  →  http://localhost:8000/docs
 uvicorn api.main:app --port 8000
 
-# 3. run the web client  ->  http://localhost:5173
+# 3. Web  →  http://localhost:5173
 npm --prefix web install && npm --prefix web run dev
 
-# 4. run the mobile client (Android emulator: 10.0.2.2 is the host)
-cd mobile && flutter create . && flutter pub get
+# 4. Mobile (Android emulator)
+cd mobile && flutter pub get
 flutter run --dart-define=API_URL=http://10.0.2.2:8000
 ```
 
 `POST /predict` example:
 
 ```bash
-curl -s http://localhost:8000/predict -H 'content-type: application/json' -d '{
-  "Age": 9, "Sex": 1, "HighBP": 1, "HighChol": 1, "BMI": 34, "GenHlth": 4,
-  "DiffWalk": 1, "PhysActivity": 0, "Smoker": 1
-}'
-# -> { "prediction": "diabetic", "confidence": 0.85, ... }
+curl -s http://localhost:8000/predict \
+  -H 'content-type: application/json' \
+  -d '{"Age":9,"Sex":1,"HighBP":1,"HighChol":1,"BMI":34,"GenHlth":4,"DiffWalk":1,"PhysActivity":0,"Smoker":1}'
+# → {"prediction":"diabetic","confidence":0.85,...}
 ```
-
-More detail: `diabetes/api/README.md`, `diabetes/web/README.md`, `diabetes/mobile/README.md`.
 
 ---
 
 ## Application 2 — House price
 
-⏳ **Not started.** Folder skeleton only. Planned: pick a Kaggle house-price dataset,
-23-section notebook, 5 regression models (Linear, Ridge/Lasso, Decision Tree, Random
-Forest, Gradient Boosting), `POST /predict` → `{ "predicted_price": ... }`, web + mobile.
-
----
-
-## Application 3 — Customer behaviour (Olist e-commerce)
-
-**Dataset:** Kaggle `olistbr/brazilian-ecommerce` (9 CSVs), in `customer_behaviour/data/`.
-98,673 reviewed orders → 95,824 after keeping delivered orders. One row = one order,
-aggregated from the item / payment / product / customer tables. Target
-`satisfied = review_score ≥ 4` (~79% positive).
-**Deployed model:** Logistic Regression on the **tabular + comment-text** representation,
-test ROC-AUC 0.859, dissatisfied-class recall 0.672. Adding the comment text lifts
-mean ROC-AUC by ~0.08 over tabular features alone.
+**Dataset:** Vietnam house price dataset (Kaggle).  
+Target: `Price` (million VND). Model trained on `log1p(Price)`.  
+**Model:** Random Forest — predictions inverted with `expm1`.
 
 ```bash
-cd assignment_02/customer_behaviour
-pip install -r requirements.txt
+cd house_price/
 
-# 1. reproduce the experiment (writes model/*.joblib + input_schema.json)
-python -m nbclient notebook/customer_behaviour.ipynb        # or: jupyter nbconvert --execute
+# 1. reproduce experiment (writes model/*.joblib)
+jupyter nbconvert --to notebook --execute notebook/house_price.ipynb --output house_price.ipynb
 
-# 2. run the API  ->  http://localhost:8000/docs
-uvicorn api.main:app --port 8000
+# 2. API  →  http://localhost:8001/docs
+uvicorn api.main:app --port 8001
 
-# 3. run the web client  ->  http://localhost:5174
+# 3. Web  →  http://localhost:5174
 npm --prefix web install && npm --prefix web run dev
 
-# 4. run the mobile client
-cd mobile && flutter create . && flutter pub get
-flutter run --dart-define=API_URL=http://10.0.2.2:8000
-```
-
-Or run the API + web together in Docker:
-
-```bash
-cd assignment_02/customer_behaviour
-docker compose up --build
-#   web -> http://localhost:5174   ·   api -> http://localhost:8000/docs
+# 4. Mobile
+cd mobile && flutter pub get
+flutter run --dart-define=API_URL=http://10.0.2.2:8001
 ```
 
 `POST /predict` example:
 
 ```bash
-curl -s http://localhost:8000/predict -H 'content-type: application/json' -d '{
-  "price_total": 129.90, "freight_total": 18.30, "main_payment_type": "credit_card",
-  "max_installments": 3, "customer_state": "SP", "category": "bed_bath_table",
-  "order_purchase_timestamp": "2018-05-01 10:00:00",
-  "order_estimated_delivery_date": "2018-05-20 00:00:00",
-  "order_delivered_customer_date": "2018-05-31 14:00:00",
-  "review_comment_message": "Produto chegou muito atrasado e a embalagem estava danificada."
-}'
-# -> { "prediction": "dissatisfied", "confidence": 0.9252, "p_satisfied": 0.0748, ... }
+curl -s http://localhost:8001/predict \
+  -H 'content-type: application/json' \
+  -d '{"Area":60,"Width":4,"Floors":3,"Bedrooms":3,"Legal":"pink_book","District":"Cau Giay"}'
+# → {"predicted_price":3200.0,"unit":"million VND",...}
 ```
-
-More detail: `customer_behaviour/api/README.md`, `customer_behaviour/web/README.md`,
-`customer_behaviour/mobile/README.md`, `customer_behaviour/Report_Deliverable.md`.
 
 ---
 
-## Deployment architecture (shared by all apps)
+## Application 3 — Customer behaviour
+
+**Dataset:** `olistbr/brazilian-ecommerce` (9 CSVs).  
+98,673 reviewed orders → 95,824 after filtering. Target: `satisfied = review_score ≥ 4`.  
+**Model:** Logistic Regression (tabular + TF-IDF text) — ROC-AUC 0.859, dissatisfied recall 0.672.
+
+```bash
+cd customer_behaviour/
+pip install -r requirements.txt
+
+# 1. reproduce experiment (writes model/*.joblib)
+jupyter nbconvert --to notebook --execute notebook/customer_behaviour.ipynb --output customer_behaviour.ipynb
+
+# 2. API  →  http://localhost:8002/docs
+uvicorn api.main:app --port 8002
+
+# 3. Web  →  http://localhost:5175
+npm --prefix web install && npm --prefix web run dev
+
+# 4. Mobile
+cd mobile && flutter pub get
+flutter run --dart-define=API_URL=http://10.0.2.2:8002
+```
+
+Or run API + web together with Docker:
+
+```bash
+cd customer_behaviour/
+docker compose up --build
+#   web  →  http://localhost:5175   ·   api  →  http://localhost:8002/docs
+```
+
+`POST /predict` example:
+
+```bash
+curl -s http://localhost:8002/predict \
+  -H 'content-type: application/json' \
+  -d '{
+    "price_total": 129.90, "freight_total": 18.30,
+    "main_payment_type": "credit_card", "max_installments": 3,
+    "customer_state": "SP", "category": "bed_bath_table",
+    "order_purchase_timestamp": "2018-05-01 10:00:00",
+    "order_estimated_delivery_date": "2018-05-20 00:00:00",
+    "order_delivered_customer_date": "2018-05-31 14:00:00",
+    "review_comment_message": "Produto chegou muito atrasado."
+  }'
+# → {"prediction":"dissatisfied","confidence":0.9252,...}
+```
+
+---
+
+## Deployment architecture
 
 ```
-User input → API request → validation → SAME preprocessing (loaded from training) → saved model → prediction → JSON → web / mobile UI
+User input → POST /predict → validation → preprocessing (loaded from training) → saved model → JSON → web / mobile UI
 ```
 
-**Data-leakage rule:** the deployed service loads the preprocessing pipeline that was
-fitted on the *training* split and only calls `.transform()` / `.predict_proba()`. It
-never fits a new scaler, encoder, imputer or vectoriser on user input or test data.
-The notebooks verify this in §23 by reloading the artifact from disk and asserting the
-prediction matches the in-memory pipeline.
+**Data-leakage rule:** the deployed API loads the pipeline fitted on the *training* split and only calls `.transform()` / `.predict_proba()`. It never re-fits any scaler, encoder, imputer, or vectoriser on live input.

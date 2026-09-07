@@ -83,6 +83,35 @@ local.properties
 **/temp/
 _scratch/
 
+# Plan / internal notes (not for submission)
+plan/
+
+# Report — ignore all sources and drafts; only keep the compiled PDF
+report/Final_Report.tex
+report/Final_Report.md
+report/Final_Report.pdf
+report/Report.md
+report/Report.pdf
+report/Report.docx
+report/Report_Deliverable.docx
+report/compile_pdf.sh
+report/restructure_report.py
+report/screenshots/
+report/test_cover_check*.png
+report/*.aux
+report/*.log
+report/*.out
+report/*.toc
+report/*.synctex.gz
+report/*.fls
+report/*.fdb_latexmk
+
+# Loose scratch / helper files at repo root
+Notebook_mock.ipynb
+Report_Deliverable.md
+Requirement.md
+capture.py
+
 # Raw Kaggle datasets (large; fetched via each app's data/README.md)
 */data/*.csv
 */data/*.zip

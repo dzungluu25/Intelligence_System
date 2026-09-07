@@ -1,104 +1,180 @@
-# Assignment 02 — From Data Representation to a Deployable Intelligent System
+# Assignment 02 — From Data Representation to Deployable Intelligent Systems
 
-**Intelligent System Development** · Lecturer: Dinh Que Tran, Ph.D., Assoc. Prof. · Semester I.2026
-Spec: `../../slide_assign/intel_sys_dev_assignment_02_final.pdf`
-
-Three intelligent applications, each taken through the **same** pipeline and deployed as a
-REST API with web + mobile clients:
+Three intelligent applications built on the **same pipeline**, so their differences can
+be compared side by side:
 
 ```
-Data → Understand → Clean → Represent → Learn → Evaluate → Persist → Deploy (Web + Mobile)
+Raw data → Understand → Clean → Represent → Learn → Evaluate → Persist → Deploy
 ```
 
-The point of the assignment is **not** "train three models" — it is to show how raw
-real-world data of different kinds becomes a numerical representation `X` (and, for text,
-`E`), then a model, then a persisted artifact, then a usable service.
-
-## The three applications
-
-| # | Folder | Task | Raw data | Representation | Status |
+| # | Application | Task | Raw form | Representation | Status |
 |---|---|---|---|---|---|
-| 1 | [`diabetes/`](diabetes/) | Classification | CSV / tabular | feature matrix `X ∈ ℝ^{N×d}` | **scaffold only** |
-| 2 | [`house_price/`](house_price/) | Regression | CSV / tabular | encoded + scaled `X ∈ ℝ^{N×d}` | structure + API stubs done; notebook + clients pending |
-| 3 | [`customer_behavior/`](customer_behavior/) | Classification (+ text) | CSV + customer reviews | tabular `X` ⊕ text vectors / `E ∈ ℝ^{B×T×d}` | **scaffold only** |
+| 1 | **Diabetes** prediction | binary classification | CSV (BRFSS survey) | feature matrix `X ∈ ℝ^{N×23}` | ✅ notebook · API · web · mobile |
+| 2 | **House price** prediction | regression | CSV | encoded + scaled feature matrix | ⏳ not started |
+| 3 | **Customer behaviour** (Olist e-commerce) | binary classification | 9 CSV tables + review comments | tabular `ℝ^{43}` **‖** TF-IDF text `ℝ^{~13000}` | ✅ notebook · API · web · mobile |
 
-## Repository layout (Appendix A)
+Each application is self-contained under its own folder with an identical layout
+(Appendix A):
 
 ```
-Assignment_2/
-├── diabetes/
-│   ├── data/        raw Kaggle CSV (see data/README.md) — gitignored
-│   ├── notebook/    <app>.ipynb — the 23 sections of Appendix B
-│   ├── model/       model_pipeline.joblib + input_schema.json (schema committed)
-│   ├── api/         FastAPI service — POST /predict (Appendix C)
-│   ├── web/         web client — form → API → result (Appendix D)
-│   ├── mobile/      mobile client — REST client of the API (Appendix E)
-│   └── requirements.txt
-├── house_price/     (same layout)
-├── customer_behavior/ (same layout)
-├── report/
-│   └── Assignment_02.pdf   (~10 pages — the written report)
-├── .gitignore
-└── README.md        (this file)
+<app>/
+  data/        raw dataset (or download reference)
+  notebook/    <app>.ipynb  — the 23-section ML experiment, executed with outputs
+  model/       model_pipeline.joblib  +  feature_names.joblib  +  input_schema.json
+  api/         FastAPI service exposing POST /predict
+  web/         React + Vite single-page client (no model in the browser)
+  mobile/      Flutter client (REST client of the API)
+  requirements.txt
+report/        Assignment_02.pdf  (final ~10-page report)
 ```
 
-> **Note on `data/`.** No CSV is committed (size + licence). Each `data/README.md` gives
-> the Kaggle name / URL / how to obtain the file and where to place it.
+The **report** is written from each app's `Report_Deliverable.md` guide
+(`diabetes/Report_Deliverable.md`, `customer_behaviour/Report_Deliverable.md`) plus the
+executed notebooks.
 
-## Per-application quick start
+---
 
-Each app is self-contained. From inside an app folder:
+## Environment
+
+| | |
+|---|---|
+| Python | 3.13 (3.14 also tested for diabetes) |
+| OS | Windows 11 |
+| Random seed | `RANDOM_SEED = 42` everywhere (numpy, `random`, every split / subsample / estimator) |
+| Node (web) | 18+ |
+| Flutter (mobile) | 3.19+ |
+
+Each app pins its Python deps in `<app>/requirements.txt`. Install per app:
 
 ```bash
-python -m venv .venv && source .venv/bin/activate
+cd assignment_02/<app>
 pip install -r requirements.txt
-
-# 1. get the dataset — see data/README.md
-# 2. run the notebook end to end (produces model/model_pipeline.joblib + input_schema.json)
-jupyter lab notebook/
-
-# 3. serve the model
-uvicorn api.main:app --reload --port <8001|8002|8003>
-#    Swagger UI at http://localhost:<port>/docs
-#    Postman: import api/*.postman_collection.json
-
-# 4. web client
-cd web && npm install && npm run dev
-
-# 5. mobile client
-cd mobile && npm install && npx cap sync && npx cap run android
 ```
 
-Suggested API ports: diabetes `8001`, house_price `8001`, customer_behavior `8003`
-(run one at a time, or change the port).
+---
 
-## Reproducibility
+## Data-representation summary (mandatory table)
 
-- Python 3.14 (each notebook's section 0 prints exact library versions)
-- `RANDOM_SEED = 42` in every notebook
-- `requirements.txt` per application
-- OS: developed on macOS (Darwin)
-
-## Deliverables (Appendix F)
-
-Three notebooks · three persisted pipelines · three `POST /predict` services · three
-mobile demos · one ~10-page report (`report/Assignment_02.pdf`) · this repo · dataset
-references · README (this file).
-
-## Current state
-
-| Item | diabetes | house_price | customer_behavior |
+| Application | Raw form | Numerical representation | Model input |
 |---|---|---|---|
-| Folder structure | ✅ | ✅ | ✅ |
-| `data/README.md` | ⬜ | ✅ | ⬜ |
-| Notebook (23 sections) | ⬜ | ⬜ (old content, needs rewrite) | ⬜ |
-| `model/input_schema.json` | ⬜ | ✅ (stub) | ⬜ |
-| API (`POST /predict`) | ⬜ | ✅ (stub, needs model) | ⬜ |
-| Web client | ⬜ | ⚠️ moved in, calls old API shape | ⬜ |
-| Mobile client | ⬜ | ⚠️ moved in, calls old API shape | ⬜ |
-| `requirements.txt` | ⬜ | ✅ | ⬜ |
+| Diabetes | CSV / table | 21 raw + 2 engineered → feature vector, `StandardScaler` on 8 numeric cols, no one-hot | `X ∈ ℝ^{N×23}` dense |
+| House price | CSV / table | encoded + scaled feature matrix | `X ∈ ℝ^{N×d}` *(pending)* |
+| Customer behaviour | 9 CSV tables + PT review comments | 20 tabular cols → `ℝ^{43}` (impute → log1p money → scale; one-hot payment/region/category) **‖** `TfidfVectorizer(1–2-gram)` on the comment → `ℝ^{~13000}` sparse | `X ∈ ℝ^{N×~13000}` sparse, `N = 95,824` |
 
-`diabetes/` and `customer_behavior/` are empty folder scaffolds — content to be added.
-Working references exist elsewhere: `../Assignment_1/` (a diabetes notebook + app in a
-different layout) and `../../intelligent_system_assignments/assignment_02/diabetes/`
-(a full diabetes build in this exact layout).
+Every dimension is explained in the corresponding notebook §12 and in the report.
+
+---
+
+## Application 1 — Diabetes
+
+**Dataset:** Kaggle `alexteboul/diabetes-health-indicators-dataset`
+(`diabetes_012_health_indicators_BRFSS2015.csv`), already in `diabetes/data/`.
+253,680 rows → 229,781 after de-duplication. Target `Diabetes_binary`.
+**Deployed model:** Random Forest, test ROC-AUC ≈ 0.81, recall ≈ 0.74.
+
+```bash
+cd assignment_02/diabetes
+
+# 1. reproduce the experiment (writes model/*.joblib)
+jupyter nbconvert --to notebook --execute notebook/diabetes.ipynb --output diabetes.ipynb
+python api/build_artifacts.py            # one-off serving artifacts (neighbour index, SHAP bg)
+
+# 2. run the API  ->  http://localhost:8000/docs
+uvicorn api.main:app --port 8000
+
+# 3. run the web client  ->  http://localhost:5173
+npm --prefix web install && npm --prefix web run dev
+
+# 4. run the mobile client (Android emulator: 10.0.2.2 is the host)
+cd mobile && flutter create . && flutter pub get
+flutter run --dart-define=API_URL=http://10.0.2.2:8000
+```
+
+`POST /predict` example:
+
+```bash
+curl -s http://localhost:8000/predict -H 'content-type: application/json' -d '{
+  "Age": 9, "Sex": 1, "HighBP": 1, "HighChol": 1, "BMI": 34, "GenHlth": 4,
+  "DiffWalk": 1, "PhysActivity": 0, "Smoker": 1
+}'
+# -> { "prediction": "diabetic", "confidence": 0.85, ... }
+```
+
+More detail: `diabetes/api/README.md`, `diabetes/web/README.md`, `diabetes/mobile/README.md`.
+
+---
+
+## Application 2 — House price
+
+⏳ **Not started.** Folder skeleton only. Planned: pick a Kaggle house-price dataset,
+23-section notebook, 5 regression models (Linear, Ridge/Lasso, Decision Tree, Random
+Forest, Gradient Boosting), `POST /predict` → `{ "predicted_price": ... }`, web + mobile.
+
+---
+
+## Application 3 — Customer behaviour (Olist e-commerce)
+
+**Dataset:** Kaggle `olistbr/brazilian-ecommerce` (9 CSVs), in `customer_behaviour/data/`.
+98,673 reviewed orders → 95,824 after keeping delivered orders. One row = one order,
+aggregated from the item / payment / product / customer tables. Target
+`satisfied = review_score ≥ 4` (~79% positive).
+**Deployed model:** Logistic Regression on the **tabular + comment-text** representation,
+test ROC-AUC 0.859, dissatisfied-class recall 0.672. Adding the comment text lifts
+mean ROC-AUC by ~0.08 over tabular features alone.
+
+```bash
+cd assignment_02/customer_behaviour
+pip install -r requirements.txt
+
+# 1. reproduce the experiment (writes model/*.joblib + input_schema.json)
+python -m nbclient notebook/customer_behaviour.ipynb        # or: jupyter nbconvert --execute
+
+# 2. run the API  ->  http://localhost:8000/docs
+uvicorn api.main:app --port 8000
+
+# 3. run the web client  ->  http://localhost:5174
+npm --prefix web install && npm --prefix web run dev
+
+# 4. run the mobile client
+cd mobile && flutter create . && flutter pub get
+flutter run --dart-define=API_URL=http://10.0.2.2:8000
+```
+
+Or run the API + web together in Docker:
+
+```bash
+cd assignment_02/customer_behaviour
+docker compose up --build
+#   web -> http://localhost:5174   ·   api -> http://localhost:8000/docs
+```
+
+`POST /predict` example:
+
+```bash
+curl -s http://localhost:8000/predict -H 'content-type: application/json' -d '{
+  "price_total": 129.90, "freight_total": 18.30, "main_payment_type": "credit_card",
+  "max_installments": 3, "customer_state": "SP", "category": "bed_bath_table",
+  "order_purchase_timestamp": "2018-05-01 10:00:00",
+  "order_estimated_delivery_date": "2018-05-20 00:00:00",
+  "order_delivered_customer_date": "2018-05-31 14:00:00",
+  "review_comment_message": "Produto chegou muito atrasado e a embalagem estava danificada."
+}'
+# -> { "prediction": "dissatisfied", "confidence": 0.9252, "p_satisfied": 0.0748, ... }
+```
+
+More detail: `customer_behaviour/api/README.md`, `customer_behaviour/web/README.md`,
+`customer_behaviour/mobile/README.md`, `customer_behaviour/Report_Deliverable.md`.
+
+---
+
+## Deployment architecture (shared by all apps)
+
+```
+User input → API request → validation → SAME preprocessing (loaded from training) → saved model → prediction → JSON → web / mobile UI
+```
+
+**Data-leakage rule:** the deployed service loads the preprocessing pipeline that was
+fitted on the *training* split and only calls `.transform()` / `.predict_proba()`. It
+never fits a new scaler, encoder, imputer or vectoriser on user input or test data.
+The notebooks verify this in §23 by reloading the artifact from disk and asserting the
+prediction matches the in-memory pipeline.

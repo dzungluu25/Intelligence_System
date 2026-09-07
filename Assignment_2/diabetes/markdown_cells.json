@@ -1,0 +1,190 @@
+[
+  {
+    "index": 0,
+    "source": "# Assignment 02 \u2014 Application 1: Diabetes Prediction\n\n**Student:** _<your name>_ &nbsp;&nbsp; **ID:** _<your id>_ &nbsp;&nbsp; **Class:** _<class>_\n&nbsp;&nbsp; **Date:** 2026-08-29\n\nThis notebook develops the diabetes-screening application from the raw survey file\nthrough to a persisted model that the web and mobile services load without\nmodification. It is organised as the twenty-three sections of the assignment\nnotebook specification and follows the pipeline\n\n```\nData \u2192 Understand \u2192 Clean \u2192 Represent \u2192 Learn \u2192 Evaluate \u2192 Persist \u2192 Deploy\n```\n\nEach computed result is followed by a short written interpretation.\n\n## 0. Header and setup\n\nThe environment is fixed and recorded here so that the experiment can be reproduced.\nA single constant, `RANDOM_SEED`, feeds every randomised step in the notebook, and\nthe versions of the main libraries are printed for the reproducibility section of the\nreport."
+  },
+  {
+    "index": 2,
+    "source": "## 1. Problem definition\n\n### 1.1 Real-world problem\n\nPublic-health programmes routinely need to screen a large adult population and decide\nwhich individuals to refer for a confirmatory blood test or a lifestyle-intervention\nprogramme. At the moment of screening no laboratory measurement is available; the\nonly information is a short self-reported health questionnaire. The United States\nCenters for Disease Control and Prevention (CDC) collects a questionnaire of exactly\nthis kind every year through the Behavioral Risk Factor Surveillance System (BRFSS),\na national telephone survey. The application learns, from roughly 250,000 completed\nquestionnaires, a function that identifies the respondents most likely to already\nhave diabetes or pre-diabetes.\n\n### 1.2 Supervised task\n\nThe task is binary **classification**. The input `X` is the vector of 21\nquestionnaire items for one respondent, listed in section 1.3. The target `y` is\n`Diabetes_binary`, obtained from the three-level survey label `Diabetes_012` by\nmapping \"no diabetes\" (0) to the negative class and both \"pre-diabetes\" (1) and\n\"diabetes\" (2) to the positive class.\n\nThe two positive levels are combined because the screening decision they lead to is\nthe same \u2014 refer the respondent for follow-up \u2014 and because the pre-diabetes level on\nits own accounts for only about 1.8% of the data, too few rows to support a reliable\nthird class.\n\n### 1.3 Feature dictionary\n\nThe field meanings and codings below are taken from the UCI *CDC Diabetes Health\nIndicators* dataset page\n(https://archive.ics.uci.edu/dataset/891/cdc+diabetes+health+indicators), which\ndocuments this exact file. Every column is stored as `float64`, although all but\nthree are integer-coded categories.\n\n| # | Feature | Type | Coding / units | Meaning (questionnaire item) |\n|---|---|---|---|---|\n| \u2014 | `Diabetes_012` | target (raw) | 0 / 1 / 2 | 0 = no diabetes or gestational-only, 1 = pre-diabetes, 2 = diabetes. Collapsed to `Diabetes_binary` (0 vs {1,2}). |\n| 1 | `HighBP` | binary | 0 / 1 | Ever told by a health professional that you have **high blood pressure**. |\n| 2 | `HighChol` | binary | 0 / 1 | Ever told that your **blood cholesterol is high**. |\n| 3 | `CholCheck` | binary | 0 / 1 | Had a **cholesterol check within the past 5 years**. |\n| 4 | `BMI` | continuous | kg/m\u00b2 (\u224812\u201398 in data) | **Body-mass index**, computed by the CDC from self-reported height and weight. |\n| 5 | `Smoker` | binary | 0 / 1 | Smoked **at least 100 cigarettes** in your entire life. |\n| 6 | `Stroke` | binary | 0 / 1 | Ever told you **had a stroke**. |\n| 7 | `HeartDiseaseorAttack` | binary | 0 / 1 | Ever had **coronary heart disease (CHD) or a myocardial infarction (MI)**. |\n| 8 | `PhysActivity` | binary | 0 / 1 | Any **physical activity in the past 30 days** other than your regular job. |\n| 9 | `Fruits` | binary | 0 / 1 | Eat **fruit \u2265 1 time per day**. |\n| 10 | `Veggies` | binary | 0 / 1 | Eat **vegetables \u2265 1 time per day**. |\n| 11 | `HvyAlcoholConsump` | binary | 0 / 1 | **Heavy drinker**: \u2265 14 drinks/week (men) or \u2265 7 drinks/week (women). |\n| 12 | `AnyHealthcare` | binary | 0 / 1 | Have **any health-care coverage** (insurance, HMO, government plan, \u2026). |\n| 13 | `NoDocbcCost` | binary | 0 / 1 | In the past 12 months, **needed a doctor but could not afford one**. |\n| 14 | `GenHlth` | ordinal | 1\u20135 | Self-rated general health: **1 = excellent, 2 = very good, 3 = good, 4 = fair, 5 = poor**. |\n| 15 | `MentHlth` | count | 0\u201330 days | Number of days in the past 30 that **mental health was \"not good\"** (stress, depression, emotions). |\n| 16 | `PhysHlth` | count | 0\u201330 days | Number of days in the past 30 that **physical health was \"not good\"** (illness or injury). |\n| 17 | `DiffWalk` | binary | 0 / 1 | **Serious difficulty walking or climbing stairs**. |\n| 18 | `Sex` | binary | 0 / 1 | **0 = female, 1 = male** (respondent's sex as recorded by BRFSS). |\n| 19 | `Age` | ordinal | 1\u201313 bracket | 5-year **age band** (`_AGEG5YR`): 1 = 18\u201324, 2 = 25\u201329, 3 = 30\u201334, \u2026, 9 = 60\u201364, \u2026, 12 = 75\u201379, **13 = 80+**. |\n| 20 | `Education` | ordinal | 1\u20136 | Highest schooling: 1 = none/kindergarten, 2 = grades 1\u20138, 3 = grades 9\u201311, 4 = high-school graduate/GED, 5 = some college / technical, 6 = **college graduate (4+ yrs)**. |\n| 21 | `Income` | ordinal | 1\u20138 | Annual household income band: 1 = < \\$10k, 2 = \\$10\u201315k, 3 = \\$15\u201320k, 4 = \\$20\u201325k, 5 = \\$25\u201335k, 6 = \\$35\u201350k, 7 = \\$50\u201375k, 8 = **\u2265 \\$75k**. |\n\nFour of the features \u2014 `GenHlth`, `Age`, `Education` and `Income` \u2014 are ordinal\ncodes whose numeric order matches their real order (a higher `GenHlth` is worse\nhealth, a higher `Age` band is older, and so on). A single ordered numeric column\ntherefore preserves the information they carry, and section 10 confirms that each has\na monotonic relationship with diabetes risk. The dataset is entirely tabular; it\ncontains no free-text field, so the text-representation demonstration required\nelsewhere in the assignment applies only to the e-commerce notebook."
+  },
+  {
+    "index": 3,
+    "source": "## 2. Dataset source\n\nThe data is the **Diabetes Health Indicators Dataset**, file\n`diabetes_012_health_indicators_BRFSS2015.csv`, published on Kaggle at\nhttps://www.kaggle.com/datasets/alexteboul/diabetes-health-indicators-dataset and\nmirrored as entry #891 of the UCI Machine Learning Repository\n(https://archive.ics.uci.edu/dataset/891/cdc+diabetes+health+indicators). Being\nderived from a United States government survey it is in the public domain; the copy\nused here was downloaded on 2026-08-29.\n\nThe file is a cleaned extract of the **CDC BRFSS 2015** telephone health survey. The\ndataset author selected 21 indicators associated with diabetes and released three\nvariants; this is the three-class variant, in which `Diabetes_012` distinguishes no\ndiabetes, pre-diabetes and diabetes. All values are respondent self-reports; the CDC\ngroups several of them into bands (age into 13 bands, income into 8, general health\ninto 5), and rows where the respondent answered \"don't know\" or \"refused\" were\nremoved by the dataset author.\n\nThe raw file is stored at\n`diabetes/data/diabetes_012_health_indicators_BRFSS2015.csv` \u2014 comma-separated, one\nheader row, all values `float64`. The number of observations and attributes is\nreported in section 4, and the per-feature descriptions are the table in section 1.3."
+  },
+  {
+    "index": 4,
+    "source": "## 3. Dataset loading"
+  },
+  {
+    "index": 6,
+    "source": "The file loads without error. The first column, `Diabetes_012`, is the survey label\nand the remaining 21 columns are the questionnaire items described in section 1.3.\nAll values are already numeric, so no parsing or type conversion is needed at load\ntime. Each row corresponds to one adult respondent and holds every answer recorded\nfor that person."
+  },
+  {
+    "index": 7,
+    "source": "## 4. Dataset inspection"
+  },
+  {
+    "index": 9,
+    "source": "The dataset has shape `(253680, 22)`: **253,680 observations**, one per respondent,\nand **22 columns** \u2014 the 21 questionnaire features plus the `Diabetes_012` label.\nEvery column has dtype `float64` even though all but `BMI`, `MentHlth` and `PhysHlth`\nare integer-coded categories.\n\n`isna().sum()` returns zero for every column, so there are no explicitly missing\nvalues. `duplicated().sum()` reports 23,899 rows (about 9.4%) that are exact copies\nof another row; these are the subject of section 7. The summary statistics show two\nranges worth checking further: `BMI` runs from 12 to 98, and `MentHlth` and\n`PhysHlth` sit at 0 for most respondents but extend to 30. The raw target is highly\nimbalanced, with 213,703, 4,631 and 35,346 rows in classes 0, 1 and 2 respectively."
+  },
+  {
+    "index": 10,
+    "source": "## 5. Data-quality analysis"
+  },
+  {
+    "index": 12,
+    "source": "The table summarises every quality issue found and the action planned for it. The\ndataset is in good condition overall: there are no missing values, no free-text\ncolumns, no identifier column and no type inconsistencies. Three matters need\nattention.\n\nThe first is the block of exact duplicate rows, which is resolved in section 7.\nRemoving them shifts the positive rate from about 15.8% in the raw file to about\n17.3%, because the duplicated rows are concentrated among the common \"healthy\"\nanswer profiles. The second is the extreme end of the `BMI` range, whose size and\nnature are examined in section 9; all `BMI` values are ultimately retained. The\nthird is the class imbalance, which is addressed through stratified splitting,\nclass weighting and the choice of evaluation metric in sections 14, 17 and 19.\n\nThe right skew of `MentHlth` and `PhysHlth` is expected \u2014 both count \"not good\"\ndays out of the last 30 \u2014 and is treated as genuine data rather than as an anomaly."
+  },
+  {
+    "index": 13,
+    "source": "## 6. Missing-value analysis"
+  },
+  {
+    "index": 15,
+    "source": "Every column has a missing count of zero, so no row is dropped and no column is\nremoved for sparsity, and there is no per-column imputation strategy to decide.\n\nThe numeric pipeline in section 15 nonetheless begins with a\n`SimpleImputer(strategy=\"median\")`. On this training data it does nothing, but it\nmeans the deployed service can still respond when a real request omits a field: the\nmedian value, learned only from the training split, is substituted. Keeping the\nimputer in the pipeline also keeps the training-time and inference-time code paths\nidentical."
+  },
+  {
+    "index": 16,
+    "source": "## 7. Duplicate analysis"
+  },
+  {
+    "index": 18,
+    "source": "The file has no respondent identifier, so the only duplicate that can be detected is\na row that repeats another row in full. There are 23,899 such rows, about 9.4% of the\ndata.\n\nThese rows are removed, and the removal happens before the train/validation/test\nsplit. Two considerations lead to this. With 21 mostly-binary columns a proportion\nof identical rows will arise by coincidence rather than from a respondent being\nrecorded twice, but the two cases cannot be told apart, and an identical answer\nvector appearing in both the training and the test set would inflate the test score\nthrough memorisation rather than generalisation \u2014 a form of data leakage. Removing\nthe duplicates also prevents the most common answer profiles from being given extra\nweight during training. After the removal `N` is 229,781, and every later section\nworks from this de-duplicated frame."
+  },
+  {
+    "index": 19,
+    "source": "## 8. Invalid-value analysis"
+  },
+  {
+    "index": 21,
+    "source": "Each domain check is a test that a column stays inside the range its coding allows.\nAll of the coded columns pass: the 14 binary columns contain only 0 and 1, `GenHlth`\nlies in 1\u20135, `Age` in 1\u201313, `Education` in 1\u20136, `Income` in 1\u20138, and the two\n\"days\" columns in 0\u201330.\n\n`BMI` is the only column with values that fall outside a plausible domain. A small\nnumber of rows record a `BMI` below 14 or above 80, which is barely compatible with\nan adult able to answer a telephone survey, and a few hundred rows fall in the\n60\u201380 band, which is unusual but corresponds to genuine severe obesity. No row is\naltered or discarded at this stage; the magnitude of these values, and their effect,\nare analysed in section 9, which concludes that all `BMI` values are kept."
+  },
+  {
+    "index": 22,
+    "source": "## 9. Outlier analysis"
+  },
+  {
+    "index": 24,
+    "source": "The band table in 9a describes the shape of the `BMI` tail. Values below 14 make up\nabout 0.01% of the data. The 60\u201380 band is larger, around 0.25% of rows, and its\ndiabetes rate is at or above the population average, so these respondents behave like\ngenuine severe-obesity cases rather than recording errors; removing them would\ndiscard real high-risk signal. The rows with `BMI` at or above 80, and those below\n14, are the only physiologically doubtful ones, and they are too few to influence a\nmodel fitted on roughly 230,000 rows.\n\nTwo features of the later modelling make the exact treatment of this tail immaterial.\nThe numeric block is standardised in the preprocessing pipeline, which keeps the\nlinear and distance-based models from being dominated by a few large values, and the\nmodel carried through to deployment is tree-based, so it responds to the rank order\nof `BMI` rather than to its magnitude \u2014 a value of 80 and a value of 98 fall on the\nsame side of every split. Appendix A reports a direct check of this: keeping,\nclipping and dropping the extreme `BMI` rows all give the same validation metrics.\n\nFor `MentHlth` and `PhysHlth` the IQR rule flags the many respondents who report a\nlarge number of \"not good\" days, up to the maximum of 30. That is a valid answer\nrather than an error, so these columns are left as they are and `StandardScaler`\nbrings them onto a comparable scale. The de-duplication in section 7 is therefore the\nonly change made to the data."
+  },
+  {
+    "index": 25,
+    "source": "## 10. Exploratory data analysis"
+  },
+  {
+    "index": 28,
+    "source": "Five figures are shown, using four plot types. Each is read as an observation of what\nthe figure shows, an interpretation of what it means, and its implication for the\nmodel.\n\n**Plot 1 \u2014 target class balance (bar chart).**\n*Observation.* After de-duplication there are about 190,055 negative rows and about\n39,726 positive rows.\n*Interpretation.* Around 17.3% of respondents are positive; predicting the majority\nclass for everyone already reaches about 0.83 accuracy.\n*Implication.* Accuracy is not an informative headline metric. The split is\nstratified, the models use `class_weight=\"balanced\"`, and F1, recall and ROC-AUC are\nused for comparison.\n\n**Plot 2 \u2014 BMI by class (violin plot).**\n*Observation.* The positive class sits higher, with a median `BMI` near 31 against\nabout 27 for the negative class and a longer upper tail, but the two distributions\noverlap heavily.\n*Interpretation.* `BMI` carries a real, broadly monotonic signal but cannot separate\nthe classes on its own.\n*Implication.* `BMI` is retained and standardised, and it is expected to rank among\nthe more important features without being decisive.\n\n**Plot 3 \u2014 diabetes rate against age band (line plot).**\n*Observation.* The positive rate rises steadily from about 2% in band 1 (ages 18\u201324)\nto a plateau near 25% around bands 10\u201311 (ages 65\u201374), then falls back slightly for\nthe 80+ band.\n*Interpretation.* Age is a strong ordinal risk factor that is close to linear over\nmost of its range.\n*Implication.* `Age` can be supplied as a single ordinal numeric column; a linear\nmodel captures most of the trend and a tree model can also represent the plateau and\nthe final dip.\n\n**Plot 4 \u2014 diabetes rate against income band (horizontal bar chart).**\n*Observation.* There is a clear negative gradient, from about 28% positive in the\nlowest income band to about 11% in the highest.\n*Interpretation.* Income acts as a proxy for diet, environment and access to care and\nremains informative even though it is not a clinical measurement.\n*Implication.* `Income` is kept as an ordinal numeric column. That part of the\nmodel's behaviour reflects a socio-economic pattern, which is relevant to a fairness\ndiscussion but not to the mechanics of the pipeline.\n\n**Plot 5 \u2014 correlation matrix (heatmap).**\n*Observation.* The features most correlated with `Diabetes_binary` are `GenHlth`\n(r \u2248 0.28), `HighBP` (\u2248 0.26), `BMI` (\u2248 0.21), `DiffWalk` (\u2248 0.21), `HighChol`\n(\u2248 0.20) and `Age` (\u2248 0.19), while `Income`, `Education` and `PhysActivity` are the\nstrongest negative correlates. Among the features themselves the largest correlation\nis `GenHlth`\u2013`PhysHlth` (r \u2248 0.52), followed by `PhysHlth`\u2013`DiffWalk` (\u2248 0.47) and\n`Income`\u2013`Education` (\u2248 0.42).\n*Interpretation.* Several health-burden variables move together, but no pair is close\nto collinear (all |r| < 0.6), so no column is redundant.\n*Implication.* Linear models can be trained on the full feature set without removing\nanything, and tree ensembles will spread importance across the correlated group. The\nthree strongest single correlates also define the small reference model used in\nsection 16."
+  },
+  {
+    "index": 29,
+    "source": "## 11. Feature types"
+  },
+  {
+    "index": 31,
+    "source": "The 21 input features divide into 14 binary indicators, 4 ordinal codes and 3\ncontinuous numerics. The single target is `Diabetes_binary`, derived from\n`Diabetes_012`.\n\n`Diabetes_012` is dropped from the feature set once the target has been built:\nkeeping it would let the model read the answer directly. The dataset contains no\nidentifier column, no text column and no constant column, so nothing else is\nremoved. The four ordinal codes are represented as single numeric columns for the\nreasons given in sections 1.3 and 10."
+  },
+  {
+    "index": 32,
+    "source": "## 12. Data representation\n\nThis section makes the link to Lecture 02 explicit. A tabular sample is a vector\n$x = [x_1, \\dots, x_d]^\\top \\in \\mathbb{R}^d$ and the dataset is a matrix\n$X \\in \\mathbb{R}^{N \\times d}$. The chain from file to model input is\n\n```\nCSV  ->  DataFrame  ->  clean feature matrix  ->  scaled matrix  ->  model input\n```\n\nThe cell below prints one raw record together with the feature vector it becomes, and\nreports the original DataFrame shape, the final `X` shape and its dtype. These are\nthe figures used in the report's data-representation summary."
+  },
+  {
+    "index": 34,
+    "source": "`X` is the dense array passed to `model.fit(X, y)` and `model.predict(X)`. Its shape\nis `(N, d)` with `d = 23`. The three continuous columns, the four ordinal codes and\nthe engineered day-count are median-imputed and then standardised to mean 0 and\nstandard deviation 1; the 14 binary indicators and the engineered `CardioRisk` flag\nare already 0/1 and pass through unchanged. The array differs from the raw CSV in\nthree ways: `Diabetes_012` is removed, two engineered columns are added, and the\nnumeric block is scaled. No value is clipped and no row is dropped.\n\nNo one-hot encoding is used, because every input is numeric or ordinal. Scaling is\napplied to the eight-column numeric block with `StandardScaler`, so that logistic\nregression, the support-vector machine and k-nearest-neighbours are not dominated by\nthe wider raw range of `BMI`."
+  },
+  {
+    "index": 35,
+    "source": "## 13. Feature engineering"
+  },
+  {
+    "index": 37,
+    "source": "Two features are added. `TotalUnhealthyDays` is the sum of `MentHlth` and `PhysHlth`,\ncapped at 60; it gives the model a single \"total burden of poor-health days\" value\nthat is steadier than either skewed column alone. `CardioRisk` is the logical OR of\n`Stroke` and `HeartDiseaseorAttack`; each is rare on its own (about 4% and 9%), and\ncombining them produces one denser indicator of cardiovascular history.\n\nNo categorical encoding is required, since the dataset contains no nominal variable \u2014\nthe four ordinal codes are already ordered and are kept numeric \u2014 and, following\nsection 9, `BMI` is neither clipped nor used to filter rows. The final feature\ndimension is `d = 23`: the 21 raw features plus the two engineered ones. Because\n`engineer()` is a stateless function, the deployed service reproduces both new\ncolumns from the 21 raw inputs."
+  },
+  {
+    "index": 38,
+    "source": "## 14. Train / validation / test split &nbsp; $D = D_\\text{train} \\cup D_\\text{val} \\cup D_\\text{test}$"
+  },
+  {
+    "index": 40,
+    "source": "The data is split into roughly 70% training, 15% validation and 15% test. The split\nis stratified on the target, so each part keeps the overall positive rate of about\n17.3%, and `random_state = 42` makes it reproducible.\n\nTest data must not influence training or the fitting of any preprocessing step. If\nthe imputer or the scaler computed its median or its mean and standard deviation from\nvalidation or test rows, the model would have indirect knowledge of those rows and\nthe reported score would be optimistic relative to genuinely new traffic. The\nnotebook avoids this in three ways: the exact duplicates were removed before the\nsplit (section 7), so no answer vector is shared between the parts; the split is\nperformed before any call to `.fit()`; and every preprocessing step is fitted on\n`X_train` alone and only applied to `X_val` and `X_test`."
+  },
+  {
+    "index": 41,
+    "source": "## 15. Preprocessing pipeline"
+  },
+  {
+    "index": 43,
+    "source": "The preprocessing is a single `ColumnTransformer` with two branches. The numeric\nbranch imputes missing values with the training median and then standardises the\neight-column numeric block, so that the scale-sensitive models treat `BMI`, the\n`Age` band and the day-counts on equal terms. The other branch passes the 15 binary\nindicators through untouched, as they are already 0/1.\n\n`make_preprocessor()` returns a fresh, unfitted object. Each model in section 17\nreceives its own copy, fitted on exactly the same training rows, and the copy that\nbelongs to the selected model is saved with it in section 22. The web, mobile and API\nservices load that fitted object and use it as-is; deployment never fits a new one."
+  },
+  {
+    "index": 44,
+    "source": "## 16. Baseline models"
+  },
+  {
+    "index": 46,
+    "source": "Two reference points are established before the candidate models are trained, because\neach answers a different question.\n\nThe first is a no-information baseline that always predicts the majority class. It\nreaches about 0.83 accuracy while scoring 0 on both recall and F1: it never\nidentifies a single diabetic respondent. This makes concrete why accuracy is set\naside as the headline metric and why recall, F1 and ROC-AUC are used instead. Any\nmodel that fails to beat this baseline on recall and F1 has learned nothing useful,\nwhatever its accuracy.\n\nThe second is a deliberately small model \u2014 an ordinary logistic regression using\nonly the three strongest correlates from section 10, `GenHlth`, `HighBP` and `BMI`.\nIt reaches a ROC-AUC of about 0.77. Beating a no-information baseline is trivial, so\nthis second reference sets the bar that the full-size models in section 17 must clear\nby a worthwhile margin; if they cannot, the three-feature model would be the more\nsensible thing to deploy."
+  },
+  {
+    "index": 47,
+    "source": "## 17. Model training"
+  },
+  {
+    "index": 48,
+    "source": "Five models are trained: logistic regression, a decision tree, a random forest, an\nRBF support-vector machine and k-nearest-neighbours.\n\nThe RBF support-vector machine does not train in acceptable time on the full\n160,000-row training set, so a common subsample is used for the comparison itself.\nTraining the models on different amounts of data would confound model quality with\ntraining-set size, so every candidate is fitted on the same stratified 25,000-row\nsample of the training split, with the same preprocessing. The model chosen from this\ncomparison is then refitted on the complete training set in section 19 before it is\nevaluated on the held-out test set and persisted, so that the deployed model still\nbenefits from every available row. Section 18 includes a check that the ranking of\nthe chosen model does not change between the 25,000-row fit and the full-data fit."
+  },
+  {
+    "index": 50,
+    "source": "All five models share the same 25,000-row training sample and the same preprocessing.\nThe hyperparameters are as follows.\n\n| Model | Key hyperparameters |\n|---|---|\n| LogisticRegression | `max_iter=1000`, `class_weight=\"balanced\"` |\n| DecisionTree | `max_depth=6`, `min_samples_leaf=50`, `class_weight=\"balanced\"` |\n| RandomForest | `n_estimators=300`, `max_depth=12`, `min_samples_leaf=20`, `class_weight=\"balanced_subsample\"` |\n| SVM (RBF) | `C=1.0`, `gamma=\"scale\"`, `probability=True`, `class_weight=\"balanced\"` |\n| KNN | `n_neighbors=45`, `weights=\"distance\"` |"
+  },
+  {
+    "index": 51,
+    "source": "## 18. Model comparison"
+  },
+  {
+    "index": 54,
+    "source": "The first table ranks the five models on the validation set by ROC-AUC. The random\nforest is first at about 0.81, a little ahead of logistic regression at about 0.80,\nwith the decision tree and the RBF support-vector machine close behind. All four\nclear the 3-feature reference model from section 16 (about 0.77) by a useful margin,\nwhich shows that the full feature set and the larger models earn their additional\ncost. K-nearest-neighbours is the exception: its accuracy is high but its recall is\nonly about 0.10, because `KNeighborsClassifier` has no class-weighting option and on\nimbalanced data its neighbourhoods are dominated by the majority class, so it drifts\ntoward predicting \"no diabetes\".\n\nThe second table addresses the use of a subsample for selection. Refitting the\nleading model on the full training set changes its ROC-AUC and F1 only marginally and\nraises its recall by a few points. The 25,000-row sample was therefore adequate for\nranking the models, and the full-data refit is what section 19 evaluates and what is\npersisted for deployment."
+  },
+  {
+    "index": 55,
+    "source": "## 19. Evaluation"
+  },
+  {
+    "index": 57,
+    "source": "The selected model is evaluated once, on the held-out test set, after being refitted\non the full training data.\n\nIn the confusion matrix the rows are the actual class and the columns are the\nprediction. The top-left cell is respondents correctly cleared. The top-right cell is\nrespondents flagged who do not have diabetes; each one costs a single unnecessary\nconfirmatory test, and there are many of them because the model is tuned toward\nrecall. The bottom-left cell is the serious error: respondents who do have diabetes\nor pre-diabetes but are predicted healthy and so are sent away undiagnosed. The\nbottom-right cell is the cases correctly identified and referred.\n\nFor a population screen the cost of a false negative \u2014 a missed, untreated case \u2014 is\nmuch greater than the cost of a false positive, which is one extra blood test, so\n**recall on the positive class is the metric that matters most**. On the test set the\nmodel reaches a recall of about 0.74 at a precision of about 0.36, with a ROC-AUC of\nabout 0.81 as the threshold-independent summary. Accuracy, at about 0.72, is not\ntreated as the headline figure: the no-information baseline in section 16 scored\nhigher on accuracy and was of no use."
+  },
+  {
+    "index": 58,
+    "source": "## 20. Error analysis"
+  },
+  {
+    "index": 60,
+    "source": "Comparing the average feature values of the errors with the test set as a whole\nexplains where the model breaks down.\n\nThe false negatives resemble the healthy population on average: a near-average `BMI`,\na low (good) `GenHlth`, and fewer `HighBP` and `DiffWalk` flags. These are diabetics\nwhose risk comes from factors the questionnaire does not record \u2014 family history,\ndiet detail, a fasting glucose value \u2014 so the failure is a gap in the representation\nrather than a lack of model capacity. The false positives are the opposite: they\ncarry many risk markers, including high `BMI`, poor `GenHlth`, `HighBP` and\n`HighChol`, but have not (yet) developed diabetes. These are the high-risk\nnon-cases that a screening model is expected to over-select.\n\nThe remedies follow from this. The representation gap could be closed by adding\nfeatures the survey lacks or by obtaining a single laboratory value; alternatively,\nlowering the decision threshold would trade further precision for recall where\nfollow-up capacity allows."
+  },
+  {
+    "index": 61,
+    "source": "## 21. Model selection\n\nThe model chosen for deployment is the **random forest**, the leading model in the\nsection 18 comparison. On the held-out test set it reaches a ROC-AUC of about 0.81, a\nrecall of about 0.74 and an F1 of about 0.48, and it stays clear of both baselines.\n\n| Criterion | Random forest (deployed) | Logistic regression (fallback) |\n|---|---|---|\n| Predictive performance | best ROC-AUC and best F1 in section 18 | about 0.01 ROC-AUC behind \u2014 effectively equal |\n| Interpretability | feature importances and per-tree paths | signed coefficients as odds ratios, more directly readable by clinicians |\n| Computational cost | trains in a few seconds; under 10 ms per prediction | trains in under a second; under 1 ms per prediction |\n| Artifact size | about 55 MB pickled (300 trees) | about 30 KB pickled |\n| Robustness | bagging absorbs noise and outliers, models feature interactions directly, and is insensitive to the `BMI` tail (section 9) | linear decision surface; depends on the pipeline's scaler |\n| Deployment constraints | CPU-only, no dependency beyond scikit-learn | CPU-only, very small |\n\nThe random forest is preferred because it is the strongest model on both headline\nmetrics and adds no operational difficulty: the artifact is large but loads in well\nunder a second and serves single requests in a few milliseconds, which is acceptable\nfor a screening API. Logistic regression is retained as a documented fallback \u2014 if\nartifact size or coefficient-level interpretability later becomes a hard requirement,\nit can replace the random forest for a cost of about 0.01 ROC-AUC by changing one\nline in section 22. The support-vector machine and k-nearest-neighbours are not\nconsidered for deployment: both were fitted only on the 25,000-row sample, k-nearest\n-neighbours would have to carry the training data inside the artifact and reached a\nrecall of only about 0.10, and the RBF support-vector machine has the slowest\ninference of the five."
+  },
+  {
+    "index": 62,
+    "source": "## 22. Model persistence"
+  },
+  {
+    "index": 64,
+    "source": "For deployment the pipeline is refitted once more, on the training and validation\ndata together \u2014 every row except the held-out test set \u2014 so that it uses as much data\nas possible. The preprocessing is refitted on the same combined data, which keeps the\ntest set outside the fit.\n\nThree files are written to `diabetes/model/`. `model_pipeline.joblib` is a single\nobject containing the fitted imputer and scaler and the random forest.\n`feature_names.joblib` is the ordered list of 23 feature names that the API must\nbuild before calling the pipeline. `input_schema.json` is a human-readable contract\nlisting the 21 raw fields, the 2 engineered fields, the valid range of each, the\nchosen model, the random seed and the scikit-learn version. Nothing further is needed\nat inference: the API loads `model_pipeline.joblib`, rebuilds the feature frame with\nthe same `engineer()` function, and calls `predict_proba`."
+  },
+  {
+    "index": 65,
+    "source": "## 23. Inference test"
+  },
+  {
+    "index": 67,
+    "source": "This section runs the contract that the web and mobile services depend on. The\npipeline is reloaded from disk as fresh objects, a single raw 21-field dictionary \u2014\nthe same shape a client will POST \u2014 is passed through field validation, the\n`engineer()` function and the loaded pipeline, and the result is returned as\n\n```json\n{ \"prediction\": \"diabetic\", \"confidence\": 0.85 }\n```\n\nNo scaler, imputer or model is fitted here. The assertion confirms that the artifact\nloaded from disk produces exactly the same probability as the in-memory pipeline from\nsection 22, so the path `raw input \u2192 validation \u2192 engineer() \u2192 fitted preprocessing \u2192\nmodel \u2192 prediction` is reproducible outside the notebook."
+  },
+  {
+    "index": 68,
+    "source": "---\n\n## Appendix A \u2014 Sensitivity check on BMI-outlier handling\n\nSection 9 keeps every `BMI` value unchanged. This appendix quantifies the claim made\nthere \u2014 that the treatment of the extreme values does not affect model quality \u2014 and\nchecks that the choice is safe even if some of the extreme-`BMI` respondents are\ngenuine. It is kept separate from section 9 because it requires fitting models.\n\nOn a fresh stratified split of 60,000 training rows and 20,000 held-out rows from the\nde-duplicated data, a logistic regression and a random forest are fitted under four\n`BMI` policies \u2014 keep all values, clip to [12, 80], clip to [14, 60], and drop the\nrows outside [14, 80] \u2014 and compared on ROC-AUC, F1 and recall."
+  },
+  {
+    "index": 70,
+    "source": "Across the four policies the metrics vary by no more than about 0.003 in ROC-AUC and\n0.003 in F1 for either model, which is within run-to-run noise. There are two\nreasons. The extreme-`BMI` rows are a very small fraction of roughly 230,000\nobservations, so they carry almost no weight in the fitted parameters under any\npolicy; and the deployed model is a random forest, which splits on rank order, so a\nvalue of 80 and a value of 98 lie on the same side of every threshold and clipping\nhas no effect on it.\n\nKeeping the values is therefore the safe choice. If some of the extreme-`BMI`\nrespondents are genuine \u2014 and the elevated diabetes rate of the 60\u201380 band in section\n9 suggests they are \u2014 nothing is lost by keeping them, and if a few are coding errors\nthey are too rare to matter. No clipping is applied in the pipeline."
+  }
+]

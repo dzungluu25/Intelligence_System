@@ -1,0 +1,11 @@
+# Trained model artifacts (regenerable from notebooks)
+*.pkl
+
+# assignment_03: raw datasets, trained model artifacts, and generated report
+# images are all regenerable from the notebooks — kept out of git history
+assignment_03/*/data/*.csv
+assignment_03/*/model/*
+assignment_03/report/images/*
+
+# macOS
+.DS_Store

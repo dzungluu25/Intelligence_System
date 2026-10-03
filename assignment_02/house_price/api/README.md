@@ -24,7 +24,7 @@ Until then, `/healthz` returns `model_loaded: false` and `/predict` returns `503
 ## Run
 
 ```bash
-# from Assignment_2/house_price/
+# from assignment_02/house_price/
 python -m uvicorn api.main:app --reload --port 8002
 ```
 

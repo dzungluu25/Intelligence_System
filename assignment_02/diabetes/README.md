@@ -23,7 +23,7 @@ be added.
 
 ## Existing references to adapt
 
-- `../../Assignment_1/` — a working diabetes notebook + full-stack app in a different
+- `../../assignment_01/` — a working diabetes notebook + full-stack app in a different
   (`notebook/ report/ app/`) layout.
 - `../../../intelligent_system_assignments/assignment_02/diabetes/` — a full diabetes
   build already in this exact Appendix A layout (api/, notebook/, web/, mobile/).

@@ -7,7 +7,7 @@ This is the **house-price** application — Application 2 of the Assignment 02 s
 It follows the official spec (`slide_assign/intel_sys_dev_assignment_02_final.pdf`):
 Appendix A repository layout, Appendix B 23-section notebook, Appendix C `POST /predict`.
 
-Parent folder `Assignment_2/` is the Assignment 02 repo and also holds `diabetes/` and
+Parent folder `assignment_02/` is the Assignment 02 repo and also holds `diabetes/` and
 `customer_behavior/` (Applications 1 and 3), plus `report/` — see `../README.md`.
 
 ## Pipeline
@@ -24,7 +24,7 @@ no confusion matrix).
 ## Structure (Appendix A)
 
 ```
-Assignment_2/house_price/
+assignment_02/house_price/
 ├── data/
 │   ├── README.md                     dataset source, columns, known quality issues
 │   └── VN-real-estate-Apr-Sept-2025.csv   (gitignored — 210 MB; see data/README.md)
@@ -85,7 +85,7 @@ input dict into a JSON prediction — the contract the API depends on.
 ### 4. API
 
 ```bash
-# from Assignment_2/
+# from assignment_02/
 uvicorn house_price.api.main:app --reload --port 8002
 # Swagger UI: http://localhost:8002/docs
 ```

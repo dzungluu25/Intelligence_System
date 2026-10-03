@@ -21,7 +21,7 @@
 The CSV is **not committed** (210 MB, over GitHub's 100 MB limit). It must be placed at:
 
 ```
-Assignment_2/house_price/data/VN-real-estate-Apr-Sept-2025.csv
+assignment_02/house_price/data/VN-real-estate-Apr-Sept-2025.csv
 ```
 
 It currently also lives at the `Intelligence-System/` repo root — copy it in:

@@ -48,7 +48,7 @@ By default, the app targets the FastAPI service on port **8002**:
 
 ### Run Commands
 ```bash
-# 1. Start the FastAPI backend first (from Assignment_2/):
+# 1. Start the FastAPI backend first (from assignment_02/):
 uvicorn house_price.api.main:app --reload --host 0.0.0.0 --port 8002
 
 # 2. In another terminal, run Flutter:

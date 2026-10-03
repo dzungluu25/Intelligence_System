@@ -475,3 +475,170 @@ code { font-family: var(--f-mono); font-size: 0.9em; background: var(--c-surface
 .how-it-works { font-size: var(--t-xs); color: var(--c-text-soft); background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-md); padding: var(--s-3) var(--s-4); }
 .how-it-works summary { cursor: pointer; font-weight: 600; color: var(--c-text); }
 .how-it-works p { margin: var(--s-2) 0 0; line-height: 1.6; }
+
+/* ================================================================================
+   Result screen — black & white, single column
+   Self-contained: hard-coded colours (stays plain regardless of the theme toggle),
+   no cards / shadows / rounded pills. Hairline rules only.
+   ============================================================================== */
+.rbw {
+  --ink: #111111;
+  --ink-soft: #555555;
+  --ink-faint: #8a8a8a;
+  --rule: #dcdcdc;
+  --rule-strong: #111111;
+  width: 100%;
+  min-height: 100vh;
+  background: #ffffff;
+  color: var(--ink);
+  font-family: var(--f-sans);
+}
+.rbw__wrap { max-width: 680px; margin: 0 auto; padding: 28px 20px 96px; }
+
+.rbw__topbar {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--s-4); padding-bottom: 12px; border-bottom: 1px solid var(--rule);
+}
+.rbw__back {
+  border: 0; background: none; padding: 0; cursor: pointer;
+  font: inherit; font-size: 13px; color: var(--ink);
+  border-bottom: 1px solid var(--ink);
+}
+.rbw__back:hover { opacity: 0.6; }
+.rbw__meta { font-size: 12px; color: var(--ink-faint); font-family: var(--f-mono); }
+
+/* section rhythm */
+.rbw-sec { margin-top: 40px; }
+.rbw-kicker,
+.rbw-label {
+  margin: 0 0 12px;
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--ink);
+  padding-bottom: 6px; border-bottom: 1px solid var(--rule-strong);
+}
+.rbw-note { margin: 12px 0 0; font-size: 12px; line-height: 1.6; color: var(--ink-soft); }
+
+/* 1 — verdict */
+.rbw-verdict { border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); padding: 24px 0; }
+.rbw-verdict .rbw-kicker { border: 0; padding: 0; margin-bottom: 8px; color: var(--ink-faint); }
+.rbw-verdict__word {
+  margin: 0; font-size: 44px; line-height: 1.05; font-weight: 800; letter-spacing: -0.02em;
+}
+.rbw-verdict__line { margin: 12px 0 0; font-size: 14px; color: var(--ink-soft); }
+.rbw-verdict__line b { color: var(--ink); }
+
+/* 2 — meter */
+.rbw-meter { margin-top: 4px; }
+.rbw-meter__track {
+  position: relative; height: 10px; background: #ffffff;
+  border: 1px solid var(--ink); overflow: visible;
+}
+.rbw-meter__fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--ink); }
+.rbw-meter__tick {
+  position: absolute; top: -4px; bottom: -4px; width: 1px; background: var(--ink);
+}
+.rbw-meter__scale {
+  position: relative; margin-top: 8px; height: 14px;
+  font-size: 11px; color: var(--ink-faint); font-family: var(--f-mono);
+}
+.rbw-meter__scale > span:first-child { position: absolute; left: 0; }
+.rbw-meter__scale > span:last-child { position: absolute; right: 0; }
+.rbw-meter__cut { position: absolute; transform: translateX(-50%); color: var(--ink); }
+
+/* 3 — inputs */
+.rbw-dl { margin: 0; }
+.rbw-dl__row {
+  display: flex; justify-content: space-between; gap: var(--s-4);
+  padding: 9px 0; border-bottom: 1px solid var(--rule); font-size: 13px;
+}
+.rbw-dl__row dt { color: var(--ink-soft); margin: 0; }
+.rbw-dl__row dd { margin: 0; font-weight: 600; text-align: right; }
+
+/* 4 — SHAP */
+.rbw-shap__legend {
+  margin: 0 0 14px; font-size: 12px; color: var(--ink-soft);
+  display: flex; align-items: center; flex-wrap: wrap;
+}
+.rbw-shap__key {
+  display: inline-block; width: 11px; height: 11px; margin-right: 5px;
+  border: 1px solid var(--ink); vertical-align: -1px;
+}
+.rbw-shap__key--pos { background: var(--ink); }
+.rbw-shap__key--neg {
+  background-image: repeating-linear-gradient(45deg, var(--ink) 0 1.5px, #fff 1.5px 4px);
+}
+.rbw-shap__rows { display: flex; flex-direction: column; }
+.rbw-shap__row {
+  display: grid; grid-template-columns: minmax(0, 210px) 1fr 52px;
+  gap: 12px; align-items: center; padding: 7px 0;
+  border-bottom: 1px solid var(--rule); font-size: 12px;
+}
+.rbw-shap__row.is-other { color: var(--ink-faint); }
+.rbw-shap__name {
+  min-width: 0; display: flex; align-items: baseline; gap: 6px; line-height: 1.3;
+}
+.rbw-shap__name > span:last-child {
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.rbw-shap__tag {
+  flex: none; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+  padding: 1px 4px; border: 1px solid var(--ink-faint); color: var(--ink-soft);
+}
+.rbw-shap__track { position: relative; height: 16px; }
+.rbw-shap__axis {
+  position: absolute; left: 50%; top: -1px; bottom: -1px; width: 1px; background: var(--ink);
+}
+.rbw-shap__bar { position: absolute; top: 2px; bottom: 2px; }
+.rbw-shap__bar.is-pos { left: 50%; background: var(--ink); }
+.rbw-shap__bar.is-neg {
+  right: 50%;
+  background-image: repeating-linear-gradient(45deg, var(--ink) 0 1.5px, #fff 1.5px 4px);
+  border: 1px solid var(--ink);
+}
+.rbw-shap__val { font-family: var(--f-mono); font-size: 11px; font-weight: 700; text-align: right; }
+
+.rbw-shap__flow {
+  margin: 18px 0 0; padding: 10px 0; font-size: 12px; font-family: var(--f-mono);
+  color: var(--ink); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+}
+.rbw-shap__arrow { color: var(--ink-faint); }
+
+/* 5 — review terms */
+.rbw-terms { margin-top: 14px; }
+.rbw-terms:first-of-type { margin-top: 0; }
+.rbw-terms__lbl {
+  display: block; margin-bottom: 8px; font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft);
+}
+.rbw-terms__list { display: flex; flex-wrap: wrap; gap: 6px; }
+.rbw-token {
+  font-family: var(--f-mono); font-size: 12px; padding: 3px 8px; line-height: 1.3;
+  border: 1px solid var(--ink);
+}
+.rbw-token--solid { background: var(--ink); color: #ffffff; }
+.rbw-token--outline { background: #ffffff; color: var(--ink); border-style: dashed; }
+
+/* 6 — suggested action */
+.rbw-action {
+  margin: 0; padding: 4px 0 4px 16px; border-left: 2px solid var(--ink);
+  font-size: 14px; line-height: 1.6; color: #333333;
+}
+
+/* 7 — methodology */
+.rbw-method {
+  margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--rule);
+  font-size: 12px; color: var(--ink-soft);
+}
+.rbw-method summary {
+  cursor: pointer; font-weight: 700; color: var(--ink);
+  text-transform: uppercase; letter-spacing: 0.12em; font-size: 11px;
+}
+.rbw-method p { margin: 12px 0 0; line-height: 1.7; }
+
+@media (max-width: 520px) {
+  .rbw-verdict__word { font-size: 34px; }
+  .rbw-shap__row { grid-template-columns: 1fr 46px; grid-template-areas: "name val" "track track"; row-gap: 4px; }
+  .rbw-shap__name { grid-area: name; }
+  .rbw-shap__val { grid-area: val; }
+  .rbw-shap__track { grid-area: track; }
+}

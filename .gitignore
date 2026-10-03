@@ -1,11 +1,48 @@
-# Trained model artifacts (regenerable from notebooks)
-*.pkl
-
-# assignment_03: raw datasets, trained model artifacts, and generated report
-# images are all regenerable from the notebooks — kept out of git history
-assignment_03/*/data/*.csv
-assignment_03/*/model/*
-assignment_03/report/images/*
-
-# macOS
+# OS / editor
 .DS_Store
+Thumbs.db
+.ipynb_checkpoints/
+.vscode/
+.idea/
+
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Trained models and run outputs (regenerable from the notebooks)
+*.pkl
+*.joblib
+*.h5
+*.keras
+*.pt
+*.pth
+*.onnx
+**/models/
+**/smoke/
+assignment_03/*/model/*
+
+# Datasets (download instructions are in each README)
+**/data/**/*.csv
+**/data/**/*.zip
+assignment_05/dataset/**/*.csv
+assignment_05/dataset/**/*.p
+assignment_05/dataset/**/*.mat
+assignment_06/dataset/**/*.csv
+
+# Generated report images and LaTeX build files
+assignment_0[345]/report/images/*
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.bak

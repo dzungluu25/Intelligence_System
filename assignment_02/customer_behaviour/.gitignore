@@ -1,5 +1,10 @@
 # ============================ customer_behaviour app ============================
 
+# --- dataset (download from Kaggle: nadyinky/sephora-products-and-skincare-reviews;
+#     see requirements.txt — reviews_500-750.csv + product_info.csv into data/sephora/) ---
+data/*
+!data/.gitkeep
+
 # --- python ---
 __pycache__/
 *.py[cod]

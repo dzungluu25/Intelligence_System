@@ -38,7 +38,7 @@ assignment_05/dataset/**/*.mat
 assignment_06/dataset/**/*.csv
 
 # Generated report images and LaTeX build files
-assignment_0[345]/report/images/*
+assignment_0[3456]/report/images/*
 *.aux
 *.log
 *.out

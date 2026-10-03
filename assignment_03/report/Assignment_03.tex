@@ -1032,22 +1032,16 @@ training loop matching the lecture's exact unweighted BCE formula.
 % ---------------------------------------------------------
 \section{Cross-Application Comparison}
 
-\begin{table}[H]
+\begin{figure}[H]
 \centering
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Application} & \textbf{Classical 1} & \textbf{Classical 2} & \textbf{Classical 3} &
-\textbf{DL (from scratch)} \\
-\midrule
-Diabetes (Accuracy) & LogReg: 0.850 & RF: 0.849 & \textbf{GB: 0.852} & 0.845 \\
-House Price ($R^2$) & LinReg: 0.260 & \textbf{RF: 0.417} & GB: 0.250 & 0.057 \\
-Customer Behaviour (Accuracy) & \textbf{LogReg: 0.994} & SVM: 0.994 & NB: 0.967 & 0.766 \\
-\bottomrule
-\end{tabular}
-\caption{Primary metric across all 3 applications $\times$ 4 models (bold = winner per
-application)}
+\includegraphics[width=\textwidth]{cross_app_comparison.png}
+\caption{Primary metric across all 3 applications $\times$ 4 models. Each panel uses its
+task's primary metric (Accuracy for the two classification applications, $R^2$ for
+regression); the winning classical model per application is in dark blue, the other two
+classical models in light blue, and the from-scratch DL model in red -- which places last
+in all three applications.}
 \label{tab:cross-app}
-\end{table}
+\end{figure}
 
 \begin{table}[H]
 \centering
